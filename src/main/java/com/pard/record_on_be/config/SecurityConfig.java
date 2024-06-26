@@ -1,5 +1,6 @@
 package com.pard.record_on_be.config;
 
+import com.pard.record_on_be.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
