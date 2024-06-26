@@ -1,6 +1,6 @@
-package com.pard.meojeori.user.repo;
+package com.pard.record_on_be.user.repo;
 
-import com.pard.meojeori.user.entity.User;
+import com.pard.record_on_be.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

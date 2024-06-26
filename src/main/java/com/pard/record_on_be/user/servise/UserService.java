@@ -1,8 +1,8 @@
-package com.pard.meojeori.user.servise;
+package com.pard.record_on_be.user.servise;
 
-import com.pard.meojeori.user.dto.UserDTO;
-import com.pard.meojeori.user.entity.User;
-import com.pard.meojeori.user.repo.UserRepo;
+import com.pard.record_on_be.user.dto.UserDTO;
+import com.pard.record_on_be.user.entity.User;
+import com.pard.record_on_be.user.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

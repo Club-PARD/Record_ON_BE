@@ -1,10 +1,13 @@
-package com.pard.meojeori.user.controller;
+package com.pard.record_on_be.user.controller;
 
-import com.pard.meojeori.user.dto.UserDTO;
-import com.pard.meojeori.user.servise.UserService;
+import com.pard.record_on_be.user.dto.UserDTO;
+import com.pard.record_on_be.user.servise.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;

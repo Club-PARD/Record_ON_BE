@@ -1,7 +1,7 @@
-package com.pard.meojeori.user.entity;
+package com.pard.record_on_be.user.entity;
 
-import com.pard.meojeori.entity.BaseTimeEntity;
-import com.pard.meojeori.user.dto.UserDTO;
+import com.pard.record_on_be.utill.BaseTimeEntity;
+import com.pard.record_on_be.user.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

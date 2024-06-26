@@ -1,7 +1,7 @@
-package com.pard.meojeori.user.dto;
+package com.pard.record_on_be.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.pard.meojeori.user.entity.User;
+import com.pard.record_on_be.user.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 
