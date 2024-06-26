@@ -1,5 +1,6 @@
 package com.pard.record_on_be.oauth.dto;
 
+import com.pard.record_on_be.user.entity.User;
 import lombok.Getter;
 
 import java.io.Serializable;

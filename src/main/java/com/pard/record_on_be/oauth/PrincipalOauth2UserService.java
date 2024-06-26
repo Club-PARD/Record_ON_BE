@@ -3,6 +3,8 @@ package com.pard.record_on_be.oauth;
 
 import com.pard.record_on_be.oauth.dto.OAuthAttributes;
 import com.pard.record_on_be.oauth.dto.SessionUser;
+import com.pard.record_on_be.user.entity.User;
+import com.pard.record_on_be.user.repo.UserRepo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
