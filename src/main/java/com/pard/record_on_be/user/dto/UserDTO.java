@@ -13,6 +13,8 @@ public class UserDTO {
     public static class Create{
         private String name;
         private String email;
+        private String picture;
+        private Integer job_id;
     }
     @Getter
     @Setter
@@ -21,11 +23,15 @@ public class UserDTO {
         private UUID id;
         private String name;
         private String email;
+        private String picture;
+        private Integer job_id;
 
         public Read(User user) {
             this.id = user.getId();
             this.name = user.getName();
             this.email = user.getEmail();
+            this.picture = user.getPicture();
+            this.job_id = user.getJob_id();
         }
     }
 }

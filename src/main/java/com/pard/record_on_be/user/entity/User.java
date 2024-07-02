@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "users")
+@Table(name = "user")
 public class User extends BaseTimeEntity {
 
     @Id
@@ -28,12 +28,17 @@ public class User extends BaseTimeEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")
     private String name;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, columnDefinition = "TINYTEXT")
     private String email;
 
+    @Column(name = "picture", nullable = false, columnDefinition = "TEXT")
+    private String picture;
+
+    @Column(name = "job_id", nullable = false, columnDefinition = "TINYINT")
+    private Integer job_id;
 
     public User update(String name){
         this.name = name;
@@ -44,6 +49,8 @@ public class User extends BaseTimeEntity {
         return User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
+                .picture(dto.getPicture())
+                .job_id(dto.getJob_id())
                 .build();
     }
 }
