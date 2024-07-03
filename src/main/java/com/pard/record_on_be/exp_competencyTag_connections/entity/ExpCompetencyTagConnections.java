@@ -1,8 +1,11 @@
 package com.pard.record_on_be.exp_competencyTag_connections.entity;
 
+import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
 import com.pard.record_on_be.projects.entity.Projects;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,4 +28,7 @@ public class ExpCompetencyTagConnections {
     @ManyToOne
     @JoinColumn(name = "projects")
     private Projects projects;
+
+    @OneToMany(mappedBy = "expCompetencyTagConnections", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CompetencyTag> competencyTagList;
 }
