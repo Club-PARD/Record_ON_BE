@@ -1,9 +1,14 @@
 package com.pard.record_on_be.experiences.entity;
 
+import com.pard.record_on_be.exp_ans_connections.entity.ExpAnsConnections;
+import com.pard.record_on_be.exp_tag_connections.entity.ExpTagConnections;
+import com.pard.record_on_be.free_content.entity.FreeContent;
+import com.pard.record_on_be.projects.entity.Projects;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,7 +19,7 @@ import java.util.Date;
 @Table(name = "experiences")
 public class Experiences {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "SMALLINT UNSIGNED")
     private Integer id;
 
@@ -26,4 +31,17 @@ public class Experiences {
 
     @Column(name = "exp_date", columnDefinition = "DATE")
     private Date exp_date;
+
+    @OneToOne(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
+    private FreeContent freeContent;
+
+    @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExpTagConnections> expTagConnections;
+
+    @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExpAnsConnections> expAnsConnections;
+
+    @ManyToOne
+    @JoinColumn(name = "projects", referencedColumnName = "id")
+    private Projects projects;
 }

@@ -1,5 +1,7 @@
 package com.pard.record_on_be.user.entity;
 
+import com.pard.record_on_be.job.entity.Job;
+import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.utill.BaseTimeEntity;
 import com.pard.record_on_be.user.dto.UserDTO;
 import jakarta.persistence.*;
@@ -11,6 +13,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -22,7 +25,7 @@ import java.util.UUID;
 public class User extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @UuidGenerator
     @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "id", updatable = false, nullable = false)
@@ -39,6 +42,13 @@ public class User extends BaseTimeEntity {
 
     @Column(name = "job_id", nullable = false, columnDefinition = "TINYINT")
     private Integer job_id;
+
+    @OneToOne
+    @JoinColumn(name = "job")
+    private Job job;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Projects> projects;
 
     public User update(String name){
         this.name = name;

@@ -1,5 +1,8 @@
 package com.pard.record_on_be.projects.entity;
 
+import com.pard.record_on_be.experiences.entity.Experiences;
+import com.pard.record_on_be.project_data.entity.ProjectData;
+import com.pard.record_on_be.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +21,7 @@ import java.util.UUID;
 @Table(name = "projects")
 public class Projects {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
     private Integer id;
 
@@ -44,4 +48,15 @@ public class Projects {
 
     @Column(name = "is_finished", columnDefinition = "TINYINT")
     private Integer is_finished;
+
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private User user;
+
+    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Experiences> experiencesList;
+
+    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectData> projectDataList;
+
 }

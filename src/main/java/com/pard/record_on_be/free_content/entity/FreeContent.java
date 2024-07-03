@@ -1,5 +1,6 @@
 package com.pard.record_on_be.free_content.entity;
 
+import com.pard.record_on_be.experiences.entity.Experiences;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "free_content")
 public class FreeContent {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "SMALLINT UNSIGNED")
     private Integer id;
 
@@ -23,4 +24,8 @@ public class FreeContent {
 
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
+
+    @OneToOne
+    @JoinColumn(name = "experiences")
+    private Experiences experiences;
 }
