@@ -1,6 +1,6 @@
 package com.pard.record_on_be.projects.entity;
 
-import com.pard.record_on_be.exp_competencyTag_connections.entity.ExpCompetencyTagConnections;
+import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
 import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.user.entity.User;
@@ -51,7 +51,7 @@ public class Projects {
     private Integer is_finished;
 
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user", referencedColumnName = "id")
     private User user;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,5 +61,5 @@ public class Projects {
     private List<ProjectData> projectDataList;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExpCompetencyTagConnections> expCompetencyTagConnectionsList;
+    private List<CompetencyTag> competencyTagList;
 }

@@ -24,6 +24,7 @@ public class QuestionDTO {
 
         public Read(Question question) {
             this.id = question.getId();
+            this.tag_id = question.getTag_id();
             this.content = question.getContent();
         }
     }

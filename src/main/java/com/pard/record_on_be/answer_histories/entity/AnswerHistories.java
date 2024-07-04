@@ -1,6 +1,6 @@
 package com.pard.record_on_be.answer_histories.entity;
 
-import com.pard.record_on_be.exp_ans_connections.entity.ExpAnsConnections;
+import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.question.entity.Question;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,10 +26,14 @@ public class AnswerHistories {
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "experience_id", columnDefinition = "INT")
+    private Integer experience_id;
+
     @OneToOne
     @JoinColumn(name = "question")
     private Question question;
 
-    @OneToOne(mappedBy = "answerHistories", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ExpAnsConnections expAnsConnections;
+    @ManyToOne
+    @JoinColumn(name = "experiences", referencedColumnName = "id")
+    private Experiences experiences;
 }

@@ -1,9 +1,9 @@
 package com.pard.record_on_be.experiences.entity;
 
-import com.pard.record_on_be.exp_ans_connections.entity.ExpAnsConnections;
-import com.pard.record_on_be.exp_tag_connections.entity.ExpTagConnections;
-import com.pard.record_on_be.free_content.entity.FreeContent;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.pard.record_on_be.answer_histories.entity.AnswerHistories;
 import com.pard.record_on_be.projects.entity.Projects;
+import com.pard.record_on_be.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,8 +23,8 @@ public class Experiences {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "SMALLINT UNSIGNED")
     private Integer id;
 
-    @Column(name = "project_id", columnDefinition = "TINYINT UNSIGNED")
-    private Integer project_id;
+    @Column(name = "projects_id", columnDefinition = "TINYINT UNSIGNED")
+    private Integer projects_id;
 
     @Column(name = "title", columnDefinition = "TINYTEXT")
     private String title;
@@ -32,14 +32,19 @@ public class Experiences {
     @Column(name = "exp_date", columnDefinition = "DATE")
     private Date exp_date;
 
-    @OneToOne(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
-    private FreeContent freeContent;
+    /*
+        jsoninclude로 null일떄 테이블이 추가되지 않도록 함.
+        내용이 없으면 프런트에서 null 처리 해서 넘겨줘야 함.
+     */
+    @Column(name = "free_content", columnDefinition = "TEXT")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String free_content;
 
     @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExpTagConnections> expTagConnections;
+    private List<Tag> tagList;
 
     @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExpAnsConnections> expAnsConnections;
+    private List<AnswerHistories> answerHistoriesList;
 
     @ManyToOne
     @JoinColumn(name = "projects", referencedColumnName = "id")

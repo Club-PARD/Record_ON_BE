@@ -12,9 +12,10 @@ public class ExperiencesDTO {
     @Getter
     @Setter
     public static class Create {
-        private Integer project_id;
+        private Integer projects_id;
         private String title;
         private Date exp_date;
+        private String free_content;
     }
 
     @Getter
@@ -22,15 +23,17 @@ public class ExperiencesDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Read {
         private Integer id;
-        private Integer project_id;
+        private Integer projects_id;
         private String title;
         private Date exp_date;
+        private String free_content;
 
         public Read(Experiences experiences) {
             this.id = experiences.getId();
-            this.project_id = experiences.getProject_id();
+            this.projects_id = experiences.getProjects_id();
             this.title = experiences.getTitle();
             this.exp_date = experiences.getExp_date();
+            this.free_content = experiences.getFree_content();
         }
     }
 }

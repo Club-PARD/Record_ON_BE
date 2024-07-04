@@ -12,6 +12,7 @@ public class AnswerHistoriesDTO {
     public static class Create {
         private Integer question_id;
         private String content;
+        private Integer experience_id;
     }
 
 
@@ -22,11 +23,13 @@ public class AnswerHistoriesDTO {
         private Integer id;
         private Integer question_id;
         private String content;
+        private Integer experience_id;
 
         public Read(AnswerHistories answerHistories) {
             this.id = answerHistories.getId();
             this.question_id = answerHistories.getQuestion_id();
             this.content = answerHistories.getContent();
+            this.experience_id = answerHistories.getExperience_id();
         }
     }
 }

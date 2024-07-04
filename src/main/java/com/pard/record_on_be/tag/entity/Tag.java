@@ -1,7 +1,7 @@
 package com.pard.record_on_be.tag.entity;
 
 
-import com.pard.record_on_be.exp_tag_connections.entity.ExpTagConnections;
+import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.question.entity.Question;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,9 +26,9 @@ public class Tag {
     @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "exgTagConnections", referencedColumnName = "id")
-    private ExpTagConnections expTagConnections;
+    @ManyToOne
+    @JoinColumn(name = "experiences_id", referencedColumnName = "id")
+    private Experiences experiences;
 
     @OneToOne(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
     private Question question;

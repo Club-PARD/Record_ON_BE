@@ -1,6 +1,6 @@
 package com.pard.record_on_be.competency_tag.entity;
 
-import com.pard.record_on_be.exp_competencyTag_connections.entity.ExpCompetencyTagConnections;
+import com.pard.record_on_be.projects.entity.Projects;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +23,6 @@ public class CompetencyTag {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "exp_competency_tag_connections")
-    private ExpCompetencyTagConnections expCompetencyTagConnections;
+    @JoinColumn(name = "projects_id", referencedColumnName = "id")
+    private Projects projects;
 }
