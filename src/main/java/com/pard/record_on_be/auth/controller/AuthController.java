@@ -1,5 +1,7 @@
-package com.pard.record_on_be.auth;
+package com.pard.record_on_be.auth.controller;
 
+import com.pard.record_on_be.auth.service.AuthService;
+import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.util.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
@@ -16,8 +18,14 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
-    private JwtUtil jwtUtil;
+
+    private final JwtUtil jwtUtil;
+    private final AuthService authService;
+
+    public AuthController(JwtUtil jwtUtil, AuthService authService) {
+        this.jwtUtil = jwtUtil;
+        this.authService = authService;
+    }
 
     @PostMapping("/google")
     public String googleLogin(@RequestBody Map<String, Object> userData, HttpServletResponse response) {
@@ -25,8 +33,7 @@ public class AuthController {
         String name = (String) userData.get("name");
         String imageUrl = (String) userData.get("imageUrl");
 
-        // 여기서 사용자 정보를 처리 (예: DB에 저장하거나 업데이트)
-        // ...
+        authService.saveOrUpdateUser(email, name, imageUrl);
 
         // 액세스 토큰 및 리프레시 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(email);
