@@ -1,24 +1,23 @@
 package com.pard.record_on_be.auth;
 
 import com.pard.record_on_be.util.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
-
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "Test successful";
-    }
 
     @PostMapping("/google")
     public String googleLogin(@RequestBody Map<String, Object> userData, HttpServletResponse response) {
@@ -54,5 +53,50 @@ public class AuthController {
         return "User authenticated successfully";
     }
 
+    @GetMapping("/validate")
+    public String validateToken(HttpServletRequest request) {
+        Optional<Cookie> accessTokenCookie = Arrays.stream(request.getCookies())
+                .filter(cookie -> "access_token".equals(cookie.getName()))
+                .findFirst();
 
+        if (accessTokenCookie.isPresent()) {
+            try {
+                Claims claims = jwtUtil.validateToken(accessTokenCookie.get().getValue());
+                return "Token is valid for user: " + claims.getSubject();
+            } catch (Exception e) {
+                return "Invalid token";
+            }
+        } else {
+            return "Access token not found";
+        }
+    }
+
+    @PostMapping("/refresh")
+    public String refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        Optional<Cookie> refreshTokenCookie = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refresh_token".equals(cookie.getName()))
+                .findFirst();
+
+        if (refreshTokenCookie.isPresent()) {
+            try {
+                Claims claims = jwtUtil.validateToken(refreshTokenCookie.get().getValue());
+                String newAccessToken = jwtUtil.generateAccessToken(claims.getSubject());
+
+                // 새로운 액세스 토큰을 쿠키로 설정
+                Cookie newAccessCookie = new Cookie("access_token", newAccessToken);
+                newAccessCookie.setHttpOnly(true);
+                newAccessCookie.setSecure(true);
+                newAccessCookie.setPath("/");
+                newAccessCookie.setMaxAge((int) (JwtUtil.ACCESS_EXPIRATION_TIME / 1000));
+
+                response.addCookie(newAccessCookie);
+
+                return "Access token refreshed successfully";
+            } catch (Exception e) {
+                return "Invalid refresh token";
+            }
+        } else {
+            return "Refresh token not found";
+        }
+    }
 }
