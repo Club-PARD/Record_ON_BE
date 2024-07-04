@@ -1,7 +1,6 @@
-package com.pard.record_on_be.utill.entity;
+package com.pard.record_on_be.stored_info.entity;
 
 
-import com.pard.record_on_be.utill.entity.StoredQuestionInfo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

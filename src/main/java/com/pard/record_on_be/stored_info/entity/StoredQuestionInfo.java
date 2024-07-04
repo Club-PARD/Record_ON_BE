@@ -1,4 +1,4 @@
-package com.pard.record_on_be.utill.entity;
+package com.pard.record_on_be.stored_info.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +22,6 @@ public class StoredQuestionInfo {
     private String questionText;
 
     @ManyToOne
-    @JoinColumn(name = "stored_tag_info", referencedColumnName = "id")
+    @JoinColumn(name = "stored_tag_info_id", referencedColumnName = "id")
     private StoredTagInfo storedTagInfo;
 }
