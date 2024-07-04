@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 public class ProjectData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "SMALLINT UNSIGNED")
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
 
-    @Column(name = "experience_id_", columnDefinition = "TINYINT UNSIGNED")
+    @Column(name = "experience_id_", columnDefinition = "INT")
     private Integer experience_id;
 
     @Column(name = "resources_type", columnDefinition = "TINYINT UNSIGNED")

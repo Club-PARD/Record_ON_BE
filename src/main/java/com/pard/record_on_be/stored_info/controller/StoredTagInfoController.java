@@ -21,10 +21,10 @@ public class StoredTagInfoController {
 
     @GetMapping("/get")
     @Operation(summary = "모든 태그와, 질문 불러오기", description = "모든 태그들을 불러오고, 각각의 태그별로 가지고 있는 질문들을 배열로 가지고 옵니다.")
-    public List<StoredTagInfoDTO.Read> storedTagInfoDTOList() {
+    public List<StoredTagInfoDTO.ReadStoredTag> storedTagInfoDTOList() {
         List<StoredTagInfo> storedTagInfoList = storedTagInfoService.getAllTagsWithQuestions();
         return storedTagInfoList.stream().map(storedTagInfo ->
-                new StoredTagInfoDTO.Read(
+                new StoredTagInfoDTO.ReadStoredTag(
                         storedTagInfo.getTagName(), storedTagInfo
                         .getQuestionInfoList()
                         .stream()

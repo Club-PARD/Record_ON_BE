@@ -19,7 +19,7 @@ public class CompetencyTag {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
 
-    @Column(name = "competency_tag_name")
+    @Column(name = "competency_tag_name", columnDefinition = "TINYTEXT")
     private String name;
 
     @ManyToOne
