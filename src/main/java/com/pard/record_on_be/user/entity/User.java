@@ -1,6 +1,5 @@
 package com.pard.record_on_be.user.entity;
 
-import com.pard.record_on_be.job.entity.Job;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.utill.BaseTimeEntity;
 import com.pard.record_on_be.user.dto.UserDTO;
@@ -40,12 +39,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "picture", nullable = false, columnDefinition = "TEXT")
     private String picture;
 
-    @Column(name = "job_id", nullable = false, columnDefinition = "TINYINT")
-    private Integer job_id;
-
-    @OneToOne
-    @JoinColumn(name = "job")
-    private Job job;
+    @Column(name = "job", nullable = false, columnDefinition = "TEXT")
+    private String job;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Projects> projects;
@@ -60,7 +55,7 @@ public class User extends BaseTimeEntity {
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .picture(dto.getPicture())
-                .job_id(dto.getJob_id())
+                .job(dto.getJob())
                 .build();
     }
 }

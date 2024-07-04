@@ -1,6 +1,6 @@
 package com.pard.record_on_be.projects.entity;
 
-import com.pard.record_on_be.exp_competencyTag_connections.entity.ExpCompetencyTagConnections;
+import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
 import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.user.entity.User;
@@ -32,8 +32,8 @@ public class Projects {
     @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")
     private String name;
 
-    @Column(name = "create_date", nullable = false, updatable = false)
-    private Date create_date;
+    @Column(name = "start_date", nullable = false, updatable = false)
+    private Date start_date;
 
     @Column(name = "update_date", nullable = false)
     private Date update_date;
@@ -50,8 +50,11 @@ public class Projects {
     @Column(name = "is_finished", columnDefinition = "TINYINT")
     private Integer is_finished;
 
+    @Column(name = "part", columnDefinition = "TEXT")
+    private String part;
+
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user", referencedColumnName = "id")
     private User user;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,5 +64,5 @@ public class Projects {
     private List<ProjectData> projectDataList;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExpCompetencyTagConnections> expCompetencyTagConnectionsList;
+    private List<CompetencyTag> competencyTagList;
 }
