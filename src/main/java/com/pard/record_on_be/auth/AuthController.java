@@ -12,9 +12,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
-    private static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
-
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -30,19 +27,29 @@ public class AuthController {
         String imageUrl = (String) userData.get("imageUrl");
 
         // 여기서 사용자 정보를 처리 (예: DB에 저장하거나 업데이트)
-
         // ...
-        // JWT 토큰 발급
-        String jwtToken = jwtUtil.generateToken(email);
 
-        // JWT 토큰을 쿠키로 설정
-        Cookie cookie = new Cookie("jwt", jwtToken);
-        cookie.setHttpOnly(true); // 클라이언트 측에서 자바스크립트로 접근 불가
-        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        cookie.setPath("/"); // 쿠키가 모든 경로에서 유효
-        cookie.setMaxAge((int) EXPIRATION_TIME / 1000); // 쿠키 만료 시간 설정
+        // 액세스 토큰 및 리프레시 토큰 발급
+        String accessToken = jwtUtil.generateAccessToken(email);
+        String refreshToken = jwtUtil.generateRefreshToken(email);
 
-        response.addCookie(cookie);
+        // 액세스 토큰을 쿠키로 설정
+        Cookie accessCookie = new Cookie("access_token", accessToken);
+        accessCookie.setHttpOnly(true); // 클라이언트 측에서 자바스크립트로 접근 불가
+        accessCookie.setSecure(true); // HTTPS 에서만 쿠키 전송
+        accessCookie.setPath("/"); // 쿠키가 모든 경로에서 유효
+        accessCookie.setMaxAge((int) (JwtUtil.ACCESS_EXPIRATION_TIME / 1000)); // 쿠키 만료 시간 설정
+
+        // 리프레시 토큰을 쿠키로 설정
+        Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
+        refreshCookie.setHttpOnly(true); // 클라이언트 측에서 자바스크립트로 접근 불가
+        refreshCookie.setSecure(true); // HTTPS 에서만 쿠키 전송
+        refreshCookie.setPath("/"); // 쿠키가 모든 경로에서 유효
+        refreshCookie.setMaxAge((int) (JwtUtil.REFRESH_EXPIRATION_TIME / 1000)); // 쿠키 만료 시간 설정
+
+        // 쿠키 추가
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
 
         return "User authenticated successfully";
     }
