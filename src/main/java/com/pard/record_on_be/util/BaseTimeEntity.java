@@ -1,4 +1,4 @@
-package com.pard.record_on_be.utill;
+package com.pard.record_on_be.util;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

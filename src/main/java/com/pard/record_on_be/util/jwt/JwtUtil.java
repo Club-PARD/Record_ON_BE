@@ -1,14 +1,18 @@
 package com.pard.record_on_be.util.jwt;
 
+import io.jsonwebtoken.Claims;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "4261656C64756E67"; // 16 바이트 길이의 키 필요
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final long ACCESS_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
     public static final long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
@@ -20,7 +24,7 @@ public class JwtUtil {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(key)
                 .compact();
     }
 
@@ -32,7 +36,15 @@ public class JwtUtil {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith( SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(key)
                 .compact();
+    }
+
+    public Claims validateToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
