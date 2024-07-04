@@ -16,6 +16,7 @@ public class ExperiencesDTO {
         private String title;
         private Date exp_date;
         private String free_content;
+        private String common_question_answer;
     }
 
     @Getter
@@ -27,6 +28,7 @@ public class ExperiencesDTO {
         private String title;
         private Date exp_date;
         private String free_content;
+        private String common_question_answer;
 
         public Read(Experiences experiences) {
             this.id = experiences.getId();
@@ -34,6 +36,7 @@ public class ExperiencesDTO {
             this.title = experiences.getTitle();
             this.exp_date = experiences.getExp_date();
             this.free_content = experiences.getFree_content();
+            this.common_question_answer = experiences.getCommon_question_answer();
         }
     }
 }

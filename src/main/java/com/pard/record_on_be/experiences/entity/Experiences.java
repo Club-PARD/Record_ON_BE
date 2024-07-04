@@ -40,6 +40,9 @@ public class Experiences {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String free_content;
 
+    @Column(name = "common_question_answer", columnDefinition = "TEXT")
+    private String common_question_answer;
+
     @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tagList;
 

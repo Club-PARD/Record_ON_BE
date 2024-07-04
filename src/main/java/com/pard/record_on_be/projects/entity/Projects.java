@@ -32,8 +32,8 @@ public class Projects {
     @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")
     private String name;
 
-    @Column(name = "create_date", nullable = false, updatable = false)
-    private Date create_date;
+    @Column(name = "start_date", nullable = false, updatable = false)
+    private Date start_date;
 
     @Column(name = "update_date", nullable = false)
     private Date update_date;
@@ -49,6 +49,9 @@ public class Projects {
 
     @Column(name = "is_finished", columnDefinition = "TINYINT")
     private Integer is_finished;
+
+    @Column(name = "part", columnDefinition = "TEXT")
+    private String part;
 
     @ManyToOne
     @JoinColumn(name = "user", referencedColumnName = "id")
