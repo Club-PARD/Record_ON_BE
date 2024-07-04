@@ -20,7 +20,7 @@ import java.util.List;
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "SMALLINT UNSIGNED")
+    @Column(name = "id", columnDefinition = "INT")
     private Integer id;
 
     @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")

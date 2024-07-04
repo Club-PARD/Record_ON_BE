@@ -20,10 +20,10 @@ import java.util.List;
 public class Experiences {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "SMALLINT UNSIGNED")
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
 
-    @Column(name = "projects_id", columnDefinition = "TINYINT UNSIGNED")
+    @Column(name = "projects_id", columnDefinition = "INT")
     private Integer projects_id;
 
     @Column(name = "title", columnDefinition = "TINYTEXT")

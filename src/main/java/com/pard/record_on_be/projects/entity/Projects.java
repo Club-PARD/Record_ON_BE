@@ -23,7 +23,7 @@ import java.util.UUID;
 public class Projects {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
+    @Column(name = "id", nullable = false, columnDefinition = "INT")
     private Integer id;
 
     @Column(name = "user_id", nullable = false, updatable = false)
