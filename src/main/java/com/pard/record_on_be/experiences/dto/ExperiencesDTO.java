@@ -51,6 +51,36 @@ public class ExperiencesDTO {
     }
 
     @Getter
+    public static class ExperiencesCollectionPageRequest {
+        private UUID user_id;
+        private Integer project_id;
+    }
+
+    @Getter
+    @Setter
+    public static class ExperiencesCollectionPageResponse {
+        private String project_name;
+        private String project_image;
+        private Integer is_finished;
+        private Date start_date;
+        private Date finish_date;
+        private String description;
+        private String part;
+        private List<ExperienceSearchResponse> experiences;
+
+        public ExperiencesCollectionPageResponse(String project_name, String project_image, Integer is_finished, Date start_date, Date finish_date, String description, String part, List<ExperienceSearchResponse> experiences) {
+            this.project_name = project_name;
+            this.project_image = project_image;
+            this.is_finished = is_finished;
+            this.start_date = start_date;
+            this.finish_date = finish_date;
+            this.description = description;
+            this.part = part;
+            this.experiences = experiences;
+        }
+    }
+
+    @Getter
     @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Read {

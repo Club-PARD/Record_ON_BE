@@ -100,6 +100,7 @@ public class ExperiencesService {
         return experiencesTagIdList;
     }
 
+    // 날짜 기준으로 sort하는 list 만들어주기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByDate(Date start_date, Date end_date, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
         if(start_date == null && end_date == null){ return experienceSearchResponseList; }
         else if(end_date == null){
@@ -117,4 +118,19 @@ public class ExperiencesService {
         }
     }
 
+    // 단 project view 페이지에 넘어가는 데이터`
+    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id) {
+        Optional<Projects> projects = projectsRepo.findById(Long.valueOf(project_id));
+        Projects project = projects.get();
+        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+                project.getName(),
+                project.getPicture(),
+                project.getIs_finished(),
+                project.getStart_date(),
+                project.getFinish_date(),
+                project.getDescription(),
+                project.getPart(),
+                findExperienceShortByProjectId(project_id)
+        );
+    }
 }
