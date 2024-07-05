@@ -52,6 +52,21 @@ public class ExperiencesDTO {
 
     @Getter
     @Setter
+    public static class ExperiencesCollectionPage {
+        private String project_name;
+        private String project_image;
+        private Integer is_finished;
+        private Date start_date;
+        private Date finish_date;
+        private String description;
+        private String part;
+        private List<ExperienceSearchResponse> experiences;
+
+
+    }
+
+    @Getter
+    @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Read {
         private Integer id;
