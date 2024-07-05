@@ -9,13 +9,9 @@ import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -32,6 +28,11 @@ public class ExperiencesController {
     public ResponseEntity<ExperiencesDTO.Read> createExperience(@RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
         ExperiencesDTO.Read response = experiencesService.createExperience(experienceInfo);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update/{experienceId}")
+    public ExperiencesDTO.Read updateExperience(@PathVariable Integer experienceId, @RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
+        return experiencesService.updateExperience(experienceId, experienceInfo);
     }
 
 //    @GetMapping()

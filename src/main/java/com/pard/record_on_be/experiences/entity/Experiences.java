@@ -57,4 +57,8 @@ public class Experiences {
         this.projects = projects;
         this.projects_id = projects.getId();
     }
+
+    public void setAnswerHistoriesList(List<AnswerHistories> answerHistoriesList) {
+        this.answerHistoriesList = answerHistoriesList;
+    }
 }

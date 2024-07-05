@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AnswerHistoriesRepo extends JpaRepository<AnswerHistories, Integer> {
+    void deleteByExperiencesId(Integer experienceId);
 }
