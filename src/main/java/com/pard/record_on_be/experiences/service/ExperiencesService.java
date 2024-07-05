@@ -62,6 +62,7 @@ public class ExperiencesService {
 
     //
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        // 1차 필터링: answerHistories에서 text를 포함하는 experiences 찾기
         List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
                 .filter(experienceSearchResponse -> {
                     Optional<Experiences> experiencesOptional = experiencesRepo.findById(experienceSearchResponse.getExperience_id());
@@ -73,15 +74,27 @@ public class ExperiencesService {
                     return false;
                 }).collect(Collectors.toList());
 
+        // 이미 추가된 experience_id를 추적하기 위해 Set 사용
+        Set<Integer> filteredExperienceIds = expFilteredList.stream()
+                .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
+                .collect(Collectors.toSet());
+
+        // 2차 필터링: free_content에서 text를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
         experienceSearchResponseList.stream().filter(
                 experienceSearchResponse -> {
-                    Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(experienceSearchResponse.getExperience_id());
-                    if (finalFilteredOptional.isPresent()) {
-                        Experiences experiences = finalFilteredOptional.get();
-                        return experiences.getFree_content().contains(text);
+                    Integer experienceId = experienceSearchResponse.getExperience_id();
+                    if (!filteredExperienceIds.contains(experienceId)) {
+                        Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(experienceId);
+                        if (finalFilteredOptional.isPresent()) {
+                            Experiences experiences = finalFilteredOptional.get();
+                            return experiences.getFree_content().contains(text);
+                        }
                     }
                     return false;
-                }).forEach(expFilteredList::add);
+                }).forEach(experienceSearchResponse -> {
+            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+            expFilteredList.add(experienceSearchResponse);
+        });
 
         return expFilteredList;
     }
