@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,6 +23,9 @@ public class Experiences {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
+
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private UUID user_id;
 
     @Column(name = "projects_id", columnDefinition = "INT")
     private Integer projects_id;
