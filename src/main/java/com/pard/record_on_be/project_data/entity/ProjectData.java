@@ -19,8 +19,8 @@ public class ProjectData {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
 
-    @Column(name = "experience_id_", columnDefinition = "INT")
-    private Integer experience_id;
+    @Column(name = "experiences_id", columnDefinition = "INT")
+    private Integer experiencesId;
 
     @Column(name = "resources_type", columnDefinition = "TINYINT UNSIGNED")
     private Integer resources_type;
