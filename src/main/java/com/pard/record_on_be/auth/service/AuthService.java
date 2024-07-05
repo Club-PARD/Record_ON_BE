@@ -24,7 +24,7 @@ public class AuthService {
         if (Boolean.FALSE.equals(isNewUser)) {
             user = optionalUser.get();
             user.update(name);
-            userRepository.save(user);
+
         } else {
             user = User.builder()
                     .email(email)
