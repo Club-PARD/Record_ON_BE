@@ -118,7 +118,7 @@ public class ExperiencesService {
         }
     }
 
-    // 단 project view 페이지에 넘어가는 데이터
+    // 단 project view 페이지에 넘어가는 데이터`
     public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id) {
         Optional<Projects> projects = projectsRepo.findById(Long.valueOf(project_id));
         Projects project = projects.get();
