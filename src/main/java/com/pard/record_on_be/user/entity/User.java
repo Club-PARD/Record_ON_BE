@@ -1,7 +1,7 @@
 package com.pard.record_on_be.user.entity;
 
 import com.pard.record_on_be.projects.entity.Projects;
-import com.pard.record_on_be.utill.BaseTimeEntity;
+import com.pard.record_on_be.util.BaseTimeEntity;
 import com.pard.record_on_be.user.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
