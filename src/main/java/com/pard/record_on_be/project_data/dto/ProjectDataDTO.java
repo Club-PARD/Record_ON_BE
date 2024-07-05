@@ -26,7 +26,7 @@ public class ProjectDataDTO {
 
         public Read(ProjectData projectData) {
             this.id = projectData.getId();
-            this.experience_id = projectData.getExperience_id();
+            this.experience_id = projectData.getExperiencesId();
             this.resources_type = projectData.getResources_type();
             this.references_link = projectData.getReferences_link();
         }
