@@ -29,9 +29,21 @@ public class ExperiencesService {
         experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
         // 날짜 선택으로 1차 필터링
         experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
+        // 태그 선택으로 2차 필터링
+        experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
 
         return experienceSearchResponseList;
     }
+
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByTag(List<String> tagNameList, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        if (tagNameList == null || tagNameList.isEmpty()) {
+            return experienceSearchResponseList;
+        }
+        return experienceSearchResponseList.stream().filter(
+            experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
+        ).collect(Collectors.toList());
+    }
+
 
     // 보내준 프로젝트 id에 해당하는 경험들을 전부 리턴
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByProjectId(Integer projectId) {
