@@ -12,6 +12,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,9 +46,14 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Projects> projects;
 
-    public User update(String name){
+
+    public void update(String name, String picture) {
         this.name = name;
-        return this;
+        this.picture = picture;
+    }
+
+    public void updateJob(String job) {
+        this.job = job;
     }
 
     public static User toEntity(UserDTO.Create dto) {

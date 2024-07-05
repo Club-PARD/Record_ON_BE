@@ -15,7 +15,23 @@ public class UserDTO {
         private String email;
         private String picture;
         private String job;
+
+        public Create(User user) {
+            this.name = user.getName();
+            this.email = user.getEmail();
+            this.picture = user.getPicture();
+            this.job = user.getJob();
+        }
     }
+
+    @Getter
+    @Setter
+    public static class RegisterInfo{
+        private UUID id;
+        private String name;
+        private String job;
+    }
+
     @Getter
     @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
