@@ -1,7 +1,6 @@
 package com.pard.record_on_be.answer_histories.entity;
 
 import com.pard.record_on_be.experiences.entity.Experiences;
-import com.pard.record_on_be.question.entity.Question;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,17 +22,17 @@ public class AnswerHistories {
     @Column(name = "question_id", columnDefinition = "INT")
     private Integer question_id;
 
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "tag_id", columnDefinition = "INT")
+    private Integer tag_id;
 
     @Column(name = "experience_id", columnDefinition = "INT")
     private Integer experience_id;
 
-    @OneToOne
-    @JoinColumn(name = "question")
-    private Question question;
+    @Column(name = "content", columnDefinition = "TEXT")
+    private String content;
 
     @ManyToOne
-    @JoinColumn(name = "experiences", referencedColumnName = "id")
+    @JoinColumn(name = "experience_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Experiences experiences;
+
 }
