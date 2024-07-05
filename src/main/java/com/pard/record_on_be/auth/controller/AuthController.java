@@ -18,7 +18,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
     private final JwtUtil jwtUtil;
     private final AuthService authService;
 
@@ -27,13 +26,13 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/google")
-    public String googleLogin(@RequestBody Map<String, Object> userData, HttpServletResponse response) {
+    @PostMapping("/login")
+    public Map<String, Object> googleLogin(@RequestBody Map<String, Object> userData, HttpServletResponse response) {
         String email = (String) userData.get("email");
         String name = (String) userData.get("name");
         String imageUrl = (String) userData.get("imageUrl");
 
-        authService.saveOrUpdateUser(email, name, imageUrl);
+        Map<String, Object> userInfo = authService.saveOrUpdateUser(email, name, imageUrl);
 
         // 액세스 토큰 및 리프레시 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(email);
@@ -57,7 +56,7 @@ public class AuthController {
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
 
-        return "User authenticated successfully";
+        return userInfo;
     }
 
     @GetMapping("/validate")
@@ -67,10 +66,10 @@ public class AuthController {
                 .findFirst();
 
         if (accessTokenCookie.isPresent()) {
-            try {
-                Claims claims = jwtUtil.validateToken(accessTokenCookie.get().getValue());
+            Claims claims = jwtUtil.validateToken(accessTokenCookie.get().getValue());
+            if (claims != null) {
                 return "Token is valid for user: " + claims.getSubject();
-            } catch (Exception e) {
+            } else {
                 return "Invalid token";
             }
         } else {

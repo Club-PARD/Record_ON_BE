@@ -4,6 +4,8 @@ import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -15,21 +17,27 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
-    public User saveOrUpdateUser(String email, String name, String picture) {
+    public Map<String, Object> saveOrUpdateUser(String email, String name, String picture) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        Boolean isNewUser = optionalUser.isEmpty();
+        User user;
+        if (Boolean.FALSE.equals(isNewUser)) {
+            user = optionalUser.get();
             user.update(name);
-            return userRepository.save(user);
+            userRepository.save(user);
         } else {
-            User newUser = User.builder()
+            user = User.builder()
                     .email(email)
                     .name(name)
                     .picture(picture)
                     .job("Unspecified")
                     .build();
-            return userRepository.save(newUser);
+            userRepository.save(user);
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("user_id", user.getId());
+        result.put("is_new_user", isNewUser);
+
+        return result;
     }
 }
