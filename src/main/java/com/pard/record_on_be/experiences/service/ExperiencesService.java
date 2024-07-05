@@ -2,18 +2,15 @@ package com.pard.record_on_be.experiences.service;
 
 
 import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
+import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.experiences.repo.ExperiencesRepo;
-import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.tag.entity.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,10 +28,35 @@ public class ExperiencesService {
         experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
         // 태그 선택으로 2차 필터링
         experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
-
+        // 텍스트 검색으로 3차 필터링
+        experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
         return experienceSearchResponseList;
     }
 
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
+                .filter(experienceSearchResponse -> {
+                    Optional<Experiences> experiencesOptional = experiencesRepo.findById(Long.valueOf(experienceSearchResponse.getExperience_id()));
+                    if (experiencesOptional.isPresent()) {
+                        Experiences experiences = experiencesOptional.get();
+                        return experiences.getAnswerHistoriesList().stream()
+                                .anyMatch(answerHistories -> answerHistories.getContent().contains(text));
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+
+        return expFilteredList.stream().filter(
+                experienceSearchResponse -> {
+                    Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(Long.valueOf(experienceSearchResponse.getExperience_id()));
+                    if (finalFilteredOptional.isPresent()) {
+                        Experiences experiences = finalFilteredOptional.get();
+                        return experiences.getFree_content().contains(text);
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+    }
+
+    // 보내준 experience들 중에 tag가 전부 들어간 것들을 전부 찾기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByTag(List<String> tagNameList, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
         if (tagNameList == null || tagNameList.isEmpty()) {
             return experienceSearchResponseList;
