@@ -1,4 +1,4 @@
-package com.pard.record_on_be.utill.dto;
+package com.pard.record_on_be.reference.dto;
 
 import lombok.Getter;
 import lombok.Setter;
