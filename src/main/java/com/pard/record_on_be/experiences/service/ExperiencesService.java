@@ -13,6 +13,7 @@ import com.pard.record_on_be.project_data.repo.ProjectDataRepo;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
+import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
 import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
 import com.pard.record_on_be.projects.entity.Projects;
@@ -43,6 +44,142 @@ public class ExperiencesService {
         this.projectsRepo = projectsRepo;
         this.storedTagInfoRepo = storedTagInfoRepo;
         this.projectDataRepo = projectDataRepo;
+    }
+
+    // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesByFilter(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
+        List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
+        // project의 experience 전체 탐색
+        experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
+        // 날짜 선택으로 1차 필터링
+        experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
+        // 태그 선택으로 2차 필터링
+        experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
+        // 텍스트 검색으로 3차 필터링
+        experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
+        return experienceSearchResponseList;
+    }
+
+    //
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        // 1차 필터링: answerHistories에서 text를 포함하는 experiences 찾기
+        List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
+                .filter(experienceSearchResponse -> {
+                    Optional<Experiences> experiencesOptional = experiencesRepo.findById(experienceSearchResponse.getExperience_id());
+                    if (experiencesOptional.isPresent()) {
+                        Experiences experiences = experiencesOptional.get();
+                        return experiences.getAnswerHistoriesList().stream()
+                                .anyMatch(answerHistories -> answerHistories.getContent().contains(text));
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+
+        // 이미 추가된 experience_id를 추적하기 위해 Set 사용
+        Set<Integer> filteredExperienceIds = expFilteredList.stream()
+                .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
+                .collect(Collectors.toSet());
+
+        // 2차 필터링: free_content에서 text를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
+        experienceSearchResponseList.stream().filter(
+                experienceSearchResponse -> {
+                    Integer experienceId = experienceSearchResponse.getExperience_id();
+                    if (!filteredExperienceIds.contains(experienceId)) {
+                        Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(experienceId);
+                        if (finalFilteredOptional.isPresent()) {
+                            Experiences experiences = finalFilteredOptional.get();
+                            return experiences.getFree_content().contains(text);
+                        }
+                    }
+                    return false;
+                }).forEach(experienceSearchResponse -> {
+            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+            expFilteredList.add(experienceSearchResponse);
+        });
+
+        return expFilteredList;
+    }
+
+    // 보내준 experience들 중에 tag가 전부 들어간 것들을 전부 찾기
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByTag(List<String> tagNameList, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        if (tagNameList == null || tagNameList.isEmpty()) {
+            return experienceSearchResponseList;
+        }
+        return experienceSearchResponseList.stream().filter(
+                experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
+        ).collect(Collectors.toList());
+    }
+
+
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByProjectId(Integer projectId) {
+        List<ExperiencesDTO.ExperienceSearchResponse> readDefaultPageList = new ArrayList<>();
+        Projects projects = projectsRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+
+        projects.getExperiencesList().forEach(experience -> {
+            List<AnswerHistories> answerHistoriesList = experience.getAnswerHistoriesList();
+            List<Integer> tagIds = findExperiencesTagId(answerHistoriesList);
+            List<String> tagNames = findExperiencesTagName(tagIds);
+
+            readDefaultPageList.add(
+                    new ExperiencesDTO.ExperienceSearchResponse(
+                            experience.getId(),
+                            experience.getTitle(),
+                            tagIds,
+                            tagNames,
+                            experience.getExp_date()
+                    ));
+        });
+        return readDefaultPageList;
+    }
+
+    // AnswerHistories에서 tag_id만 뽑아와서 List로 만들어주는 메서드
+    public List<Integer> findExperiencesTagId(List<AnswerHistories> answerHistoriesList) {
+        List<Integer> experiencesTagIdList = new ArrayList<>();
+        answerHistoriesList.forEach(answerHistories -> experiencesTagIdList.add(answerHistories.getTag_id()));
+        return experiencesTagIdList;
+    }
+
+    // Tag ID 목록을 사용하여 Tag 이름 목록을 가져오는 메서드
+    public List<String> findExperiencesTagName(List<Integer> tagIds) {
+        List<String> experiencesTagNameList = new ArrayList<>();
+        tagIds.forEach(tagId -> {
+            StoredTagInfo tag = storedTagInfoRepo.findById(tagId).orElseThrow(() -> new RuntimeException("Tag not found"));
+            experiencesTagNameList.add(tag.getTagName());
+        });
+        return experiencesTagNameList;
+    }
+
+    // 날짜 기준으로 sort하는 list 만들어주기
+    public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByDate(Date start_date, Date end_date, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
+        if(start_date == null && end_date == null){ return experienceSearchResponseList; }
+        else if(end_date == null){
+            return experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
+            ).collect(Collectors.toList());
+        } else if (start_date == null) {
+            return experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
+            ).collect(Collectors.toList());
+        } else {
+            return experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
+            ).collect(Collectors.toList());
+        }
+    }
+
+    // 단 project view 페이지에 넘어가는 데이터`
+    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id) {
+        Optional<Projects> projects = projectsRepo.findById(project_id);
+        Projects project = projects.get();
+        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+                project.getName(),
+                project.getPicture(),
+                project.getIs_finished(),
+                project.getStart_date(),
+                project.getFinish_date(),
+                project.getDescription(),
+                project.getPart(),
+                findExperienceShortByProjectId(project_id)
+        );
     }
 
     @Transactional
@@ -129,126 +266,3 @@ public class ExperiencesService {
         projectDataRepo.saveAll(projectDataList);
     }
 }
-
-
-//@Service
-//@RequiredArgsConstructor
-//public class ExperiencesService {
-//    private final ExperiencesRepo experiencesRepo;
-//    private final ProjectsRepo projectsRepo;
-//
-//    // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
-//    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesByFilter(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
-//        List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
-//        // project의 experience 전체 탐색
-//        experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
-//        // 날짜 선택으로 1차 필터링
-//        experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
-//        // 태그 선택으로 2차 필터링
-//        experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
-//        // 텍스트 검색으로 3차 필터링
-//        experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
-//        return experienceSearchResponseList;
-//    }
-//
-//    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-//        List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
-//                .filter(experienceSearchResponse -> {
-//                    Optional<Experiences> experiencesOptional = experiencesRepo.findById(Long.valueOf(experienceSearchResponse.getExperience_id()));
-//                    if (experiencesOptional.isPresent()) {
-//                        Experiences experiences = experiencesOptional.get();
-//                        return experiences.getAnswerHistoriesList().stream()
-//                                .anyMatch(answerHistories -> answerHistories.getContent().contains(text));
-//                    }
-//                    return false;
-//                }).collect(Collectors.toList());
-//
-//        experienceSearchResponseList.stream().filter(
-//                experienceSearchResponse -> {
-//                    Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(Long.valueOf(experienceSearchResponse.getExperience_id()));
-//                    if (finalFilteredOptional.isPresent()) {
-//                        Experiences experiences = finalFilteredOptional.get();
-//                        return experiences.getFree_content().contains(text);
-//                    }
-//                    return false;
-//                }).forEach(expFilteredList::add);
-//
-//        return expFilteredList;
-//    }
-//
-//    // 보내준 experience들 중에 tag가 전부 들어간 것들을 전부 찾기
-//    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByTag(List<String> tagNameList, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-//        if (tagNameList == null || tagNameList.isEmpty()) {
-//            return experienceSearchResponseList;
-//        }
-//        return experienceSearchResponseList.stream().filter(
-//                experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
-//        ).collect(Collectors.toList());
-//    }
-//
-//
-//    // 보내준 프로젝트 id에 해당하는 경험들을 전부 리턴
-//    public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByProjectId(Integer projectId) {
-//        List<ExperiencesDTO.ExperienceSearchResponse> readDefaultPageList = new ArrayList<>();
-//        Projects projects = projectsRepo.findById(Long.valueOf(projectId)).get();
-//        projects.getExperiencesList().forEach(experience -> {
-//            readDefaultPageList.add(
-//                    new ExperiencesDTO.ExperienceSearchResponse(
-//                            experience.getId(),
-//                            experience.getTitle(),
-//                            findExperiencesTagId(experience.getTagList()),
-//                            findExperiencesTagName(experience.getTagList()),
-//                            experience.getExp_date()
-//                    ));
-//        });
-//        return readDefaultPageList;
-//    }
-//
-//    // tag에서 이름만 뽑아와서 list로 만들어주기
-//    public List<String> findExperiencesTagName(List<Tag> tagList) {
-//        List<String> experiencesTagNameList = new ArrayList<>();
-//        tagList.forEach(tag -> experiencesTagNameList.add(tag.getName()));
-//        return experiencesTagNameList;
-//    }
-//
-//    // tag에서 id만 뽑아와서 list로 만들어주기
-//    public List<Integer> findExperiencesTagId(List<Tag> tagList) {
-//        List<Integer> experiencesTagIdList = new ArrayList<>();
-//        tagList.forEach(tag -> experiencesTagIdList.add(tag.getId()));
-//        return experiencesTagIdList;
-//    }
-//
-//    // 날짜 기준으로 sort하는 list 만들어주기
-//    public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByDate(Date start_date, Date end_date, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-//        if(start_date == null && end_date == null){ return experienceSearchResponseList; }
-//        else if(end_date == null){
-//            return experienceSearchResponseList.stream().filter(
-//                    experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
-//            ).collect(Collectors.toList());
-//        } else if (start_date == null) {
-//            return experienceSearchResponseList.stream().filter(
-//                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
-//            ).collect(Collectors.toList());
-//        } else {
-//            return experienceSearchResponseList.stream().filter(
-//                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
-//            ).collect(Collectors.toList());
-//        }
-//    }
-//
-//    // 단 project view 페이지에 넘어가는 데이터`
-//    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id) {
-//        Optional<Projects> projects = projectsRepo.findById(Long.valueOf(project_id));
-//        Projects project = projects.get();
-//        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
-//                project.getName(),
-//                project.getPicture(),
-//                project.getIs_finished(),
-//                project.getStart_date(),
-//                project.getFinish_date(),
-//                project.getDescription(),
-//                project.getPart(),
-//                findExperienceShortByProjectId(project_id)
-//        );
-//    }
-//}

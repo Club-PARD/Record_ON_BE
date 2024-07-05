@@ -6,6 +6,8 @@ import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProjectsService {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
+
     private final ProjectsRepo projectRepo;
     private final UserRepo userRepo;
 
@@ -48,8 +52,9 @@ public class ProjectsService {
     //  competency에서 tag id만 뽑아와서 list로 만들어주기
     public List<Integer> findProjectsTagId(Projects projects) {
         List<Integer> projectsTagId = new ArrayList<>();
-        projects.getCompetencyTagList().forEach(tag -> {
-            projectsTagId.add(tag.getId());
+        projects.getCompetencyTagList().forEach(
+                competencyTag -> {
+                    projectsTagId.add(competencyTag.getId());
         });
         return projectsTagId;
     }
@@ -57,8 +62,9 @@ public class ProjectsService {
     // competency에서 tag 이름만 뽑아와서 list로 만들어주기
     public List<String> findProjectsTagName(Projects projects) {
         List<String> projectsTagName = new ArrayList<>();
-        projects.getCompetencyTagList().forEach(tag -> {
-            projectsTagName.add(tag.getName());
+        projects.getCompetencyTagList().forEach(
+                competencyTag -> {
+                    projectsTagName.add(competencyTag.getName());
         });
         return projectsTagName;
     }
@@ -68,12 +74,18 @@ public class ProjectsService {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
         // user의 projects 전체 탐색
         readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
+
         // 필수요소인 isfinished로 1차 필터링
         readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
+
         // 날짜 선택으로 2차 필터링
         readDefaultPageList = findProjectsShortByDate(projectsSearchRequest.getStart_date(), projectsSearchRequest.getFinish_date(), readDefaultPageList);
+
         // 태그 선택으로 3차 필터링
         readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
+
+
+
         return readDefaultPageList;
     }
 
