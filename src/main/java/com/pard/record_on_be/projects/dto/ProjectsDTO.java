@@ -27,6 +27,16 @@ public class ProjectsDTO {
 
     @Getter
     @Setter
+    public static class ProjectsSearchRequest {
+        private UUID user_id;
+        private List<String> competency_tag_name;
+        private Date start_date;
+        private Date finish_date;
+        private Integer is_finished;
+    }
+
+    @Getter
+    @Setter
     public static class ReadDefaultPage {
         private Integer project_id;
         private String project_name;

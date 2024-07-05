@@ -53,4 +53,9 @@ public class ProjectsService {
         });
         return projectsTagName;
     }
+
+    // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
+    public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
+
+    }
 }
