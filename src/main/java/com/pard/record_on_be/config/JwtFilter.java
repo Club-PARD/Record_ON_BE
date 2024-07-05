@@ -69,13 +69,16 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        else if (!isPublicEndpoint(request)) {
-            // 토큰이 없고, public endpoint가 아닌 경우
-            logger.warn("Access token not found in request to {}", request.getRequestURI());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Access token not found");
-            return;
-        }
+
+        // 아래 인용만 지우기
+
+//        else if (!isPublicEndpoint(request)) {
+//            // 토큰이 없고, public endpoint가 아닌 경우
+//            logger.warn("Access token not found in request to {}", request.getRequestURI());
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.getWriter().write("Access token not found");
+//            return;
+//        }
 
         // public endpoint 일 경우
         filterChain.doFilter(request, response);
