@@ -45,7 +45,7 @@ public class ExperiencesService {
                     return false;
                 }).collect(Collectors.toList());
 
-        return expFilteredList.stream().filter(
+        experienceSearchResponseList.stream().filter(
                 experienceSearchResponse -> {
                     Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(Long.valueOf(experienceSearchResponse.getExperience_id()));
                     if (finalFilteredOptional.isPresent()) {
@@ -53,7 +53,9 @@ public class ExperiencesService {
                         return experiences.getFree_content().contains(text);
                     }
                     return false;
-                }).collect(Collectors.toList());
+                }).forEach(expFilteredList::add);
+
+        return expFilteredList;
     }
 
     // 보내준 experience들 중에 tag가 전부 들어간 것들을 전부 찾기
