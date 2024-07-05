@@ -1,8 +1,6 @@
 package com.pard.record_on_be.experiences.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pard.record_on_be.experiences.entity.Experiences;
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,14 +9,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class ExperiencesDTO {
+
     @Getter
     @Setter
-    public static class Create {
+    public static class ExperienceInfo {
+        private UUID user_id;
         private Integer projects_id;
         private String title;
         private Date exp_date;
         private String free_content;
         private String common_question_answer;
+        private List<Integer> tag_ids;
+        private List<Integer> question_ids;
+        private List<String> question_answers;
+        private List<String> reference_links;
     }
 
     @Getter
@@ -82,9 +86,20 @@ public class ExperiencesDTO {
 
     @Getter
     @Setter
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class CreateExperience {
+        private UUID user_id;
+        private Integer projects_id;
+        private String title;
+        private Date exp_date;
+        private String free_content;
+        private String common_question_answer;
+    }
+
+    @Getter
+    @Setter
     public static class Read {
         private Integer id;
+        private UUID user_id;
         private Integer projects_id;
         private String title;
         private Date exp_date;
@@ -93,6 +108,7 @@ public class ExperiencesDTO {
 
         public Read(Experiences experiences) {
             this.id = experiences.getId();
+            this.user_id = experiences.getUser_id();
             this.projects_id = experiences.getProjects_id();
             this.title = experiences.getTitle();
             this.exp_date = experiences.getExp_date();

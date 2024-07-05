@@ -1,7 +1,7 @@
-package com.pard.record_on_be.utill.controller;
+package com.pard.record_on_be.reference.controller;
 
-import com.pard.record_on_be.utill.dto.ReferenceDTO;
-import com.pard.record_on_be.utill.service.ReferenceService;
+import com.pard.record_on_be.reference.dto.ReferenceDTO;
+import com.pard.record_on_be.reference.service.ReferenceService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

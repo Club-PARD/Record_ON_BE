@@ -31,4 +31,8 @@ public class ProjectData {
     @ManyToOne
     @JoinColumn(name = "projects_id", referencedColumnName = "id")
     private Projects projects;
+
+    public void setProjects(Projects projects) {
+        this.projects = projects;
+    }
 }

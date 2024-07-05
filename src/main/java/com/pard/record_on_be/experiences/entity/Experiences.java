@@ -3,16 +3,15 @@ package com.pard.record_on_be.experiences.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pard.record_on_be.answer_histories.entity.AnswerHistories;
 import com.pard.record_on_be.projects.entity.Projects;
-import com.pard.record_on_be.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,6 +21,9 @@ public class Experiences {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
     private Integer id;
+
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private UUID user_id;
 
     @Column(name = "projects_id", columnDefinition = "INT")
     private Integer projects_id;
@@ -43,8 +45,6 @@ public class Experiences {
     @Column(name = "common_question_answer", columnDefinition = "TEXT")
     private String common_question_answer;
 
-    @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Tag> tagList;
 
     @OneToMany(mappedBy = "experiences", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnswerHistories> answerHistoriesList;
@@ -52,4 +52,9 @@ public class Experiences {
     @ManyToOne
     @JoinColumn(name = "projects", referencedColumnName = "id")
     private Projects projects;
+
+    public void setProjects(Projects projects) {
+        this.projects = projects;
+        this.projects_id = projects.getId();
+    }
 }
