@@ -6,21 +6,39 @@ import com.pard.record_on_be.user.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepo userRepo;
 
+    public User createOrUpdateUser(String email, String name, String picture) {
+        Optional<User> optionalUser = userRepo.findByEmail(email);
+        User user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            user.update(name, picture);
+        } else {
+            user = User.builder()
+                    .email(email)
+                    .name(name)
+                    .picture(picture)
+                    .job("Unspecified")
+                    .build();
+        }
+        return userRepo.save(user);
+    }
+
+//    public Boolean isNewUser(String email) {
+//
+//    }
+
     public Map<String, Object> registerById(UserDTO.RegisterInfo registerInfo) {
-        UserDTO.Create createUser = new UserDTO.Create(userRepo.findById(registerInfo.getId()).orElseThrow());
-        createUser.setName(registerInfo.getName());
-        createUser.setJob(registerInfo.getJob());
-        User user = userRepo.save(User.toEntity(createUser));
+        User user = userRepo.findById(registerInfo.getId()).orElseThrow();
+        user.update(registerInfo.getName(), user.getPicture()); // 이름 업데이트
+        user.updateJob(registerInfo.getJob()); // 직업 업데이트
+        userRepo.save(user);
 
         Map<String, Object> result = new HashMap<>();
         result.put("response", "success");
