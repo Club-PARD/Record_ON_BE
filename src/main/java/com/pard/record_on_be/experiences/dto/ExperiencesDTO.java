@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class ExperiencesDTO {
     @Getter
@@ -17,6 +19,33 @@ public class ExperiencesDTO {
         private Date exp_date;
         private String free_content;
         private String common_question_answer;
+    }
+
+    @Getter
+    @Setter
+    public static class ExperienceSearchRequest {
+        private UUID user_id;
+        private Integer project_id;
+        private List<String> tag_name;
+        private Date start_date;
+        private Date finish_date;
+        private String search_text;
+    }
+
+    @Getter
+    @Setter
+    public static class ExperienceSearchResponse {
+        private Integer experience_id;
+        private String experience_name;
+        private List<Integer> tag_id;
+        private List<String> tag_name;
+
+        public ExperienceSearchResponse(Integer experience_id, String experience_name, List<Integer> tag_id, List<String> tag_name) {
+            this.experience_id = experience_id;
+            this.experience_name = experience_name;
+            this.tag_id = tag_id;
+            this.tag_name = tag_name;
+        }
     }
 
     @Getter
