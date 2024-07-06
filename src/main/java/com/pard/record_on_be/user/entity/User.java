@@ -1,5 +1,6 @@
 package com.pard.record_on_be.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.util.BaseTimeEntity;
 import com.pard.record_on_be.user.dto.UserDTO;
@@ -43,6 +44,7 @@ public class User extends BaseTimeEntity {
     private String job;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // 순환 참조 방지
     private List<Projects> projects;
 
 

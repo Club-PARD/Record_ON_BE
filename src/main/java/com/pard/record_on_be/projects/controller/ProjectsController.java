@@ -3,8 +3,10 @@ package com.pard.record_on_be.projects.controller;
 
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.service.ProjectsService;
+import com.pard.record_on_be.util.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +17,17 @@ import java.util.UUID;
 @RequestMapping("/api/projects")
 public class ProjectsController {
     private final ProjectsService projectsService;
+
+    @PostMapping("")
+    @Operation(summary = "프로젝트 생성", description = "프로젝트 생성")
+    public ResponseEntity<ResponseDTO> createProject(@RequestBody ProjectsDTO.Create projectCreateDTO) {
+        ResponseDTO response = projectsService.createProject(projectCreateDTO);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
     @GetMapping("/list/{userId}")
     @Operation(summary = "프로젝트 카드들 보기", description = "사용자가 생성한 모든 프로젝트 카드들을 보여줍니다.")
