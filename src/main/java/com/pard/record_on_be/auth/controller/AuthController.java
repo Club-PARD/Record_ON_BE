@@ -1,13 +1,11 @@
 package com.pard.record_on_be.auth.controller;
 
 import com.pard.record_on_be.auth.service.AuthService;
-import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.util.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 

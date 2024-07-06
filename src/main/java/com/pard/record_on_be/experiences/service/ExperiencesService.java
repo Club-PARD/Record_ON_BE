@@ -4,9 +4,6 @@ import com.pard.record_on_be.answer_histories.entity.AnswerHistories;
 import com.pard.record_on_be.answer_histories.repo.AnswerHistoriesRepo;
 import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
 import com.pard.record_on_be.experiences.entity.Experiences;
-
-import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
-import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.experiences.repo.ExperiencesRepo;
 import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.project_data.repo.ProjectDataRepo;
@@ -16,16 +13,13 @@ import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
 import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
 import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
-import com.pard.record_on_be.projects.entity.Projects;
-import com.pard.record_on_be.projects.repo.ProjectsRepo;
-import lombok.RequiredArgsConstructor;
+import com.pard.record_on_be.util.ResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class ExperiencesService {
@@ -36,6 +30,7 @@ public class ExperiencesService {
     private final ProjectsRepo projectsRepo;
     private final StoredTagInfoRepo storedTagInfoRepo;
     private final ProjectDataRepo projectDataRepo;
+
 
     public ExperiencesService(ExperiencesRepo experiencesRepo, StoredQuestionInfoRepo storedQuestionInfoRepo, AnswerHistoriesRepo answerHistoriesRepo, ProjectsRepo projectsRepo, StoredTagInfoRepo storedTagInfoRepo, ProjectDataRepo projectDataRepo) {
         this.experiencesRepo = experiencesRepo;
@@ -183,74 +178,124 @@ public class ExperiencesService {
     }
 
     @Transactional
-    public ExperiencesDTO.Read createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
-        Projects projects = projectsRepo.findById(experienceInfo.getProjects_id()).orElseThrow();
+    public ResponseDTO createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
+        try {
+            Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
 
-        Experiences experience = Experiences.builder()
-                .user_id(experienceInfo.getUser_id())
-                .projects_id(experienceInfo.getProjects_id())
-                .title(experienceInfo.getTitle())
-                .exp_date(experienceInfo.getExp_date())
-                .free_content(experienceInfo.getFree_content())
-                .common_question_answer(experienceInfo.getCommon_question_answer())
-                .build();
-        experience = experiencesRepo.save(experience);
+            // Check if Question and Tag with id is present
+            checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
-        experience.setProjects(projects);
+            Experiences experience = Experiences.builder()
+                    .user_id(experienceInfo.getUser_id())
+                    .projects_id(experienceInfo.getProjects_id())
+                    .title(experienceInfo.getTitle())
+                    .exp_date(experienceInfo.getExp_date())
+                    .free_content(experienceInfo.getFree_content())
+                    .common_question_answer(experienceInfo.getCommon_question_answer())
+                    .build();
+            experience.setProjects(projects); // 프로젝트 설정을 빌더 후에 설정
+            experience = experiencesRepo.save(experience); // 저장
 
-        createOrUpdateAnswerHistories(experienceInfo, experience);
-        createOrUpdateProjectData(experienceInfo, experience);
+            createOrUpdateAnswerHistories(experienceInfo, experience);
+            createOrUpdateProjectData(experienceInfo, experience);
 
-        return new ExperiencesDTO.Read(experience);
+            return new ResponseDTO(true, "Experience created successfully", new ExperiencesDTO.Read(experience));
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while creating the experience: " + e.getMessage());
+        }
     }
 
     @Transactional
-    public ExperiencesDTO.Read updateExperience(Integer experienceId, ExperiencesDTO.ExperienceInfo experienceInfo) {
-        Experiences existingExperience = experiencesRepo.findById(experienceId).orElseThrow();
-        Projects projects = projectsRepo.findById(experienceInfo.getProjects_id()).orElseThrow();
+    public ResponseDTO updateExperience(Integer experienceId, ExperiencesDTO.ExperienceInfo experienceInfo) {
+        try {
+            Optional<Experiences> optionalExperience = experiencesRepo.findById(experienceId);
+            if (optionalExperience.isPresent()) {
+                Experiences existingExperience = optionalExperience.get();
+                Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
+                        .orElseThrow(() -> new IllegalArgumentException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
 
-        Experiences updatedExperience = Experiences.builder()
-                .id(existingExperience.getId())
-                .user_id(existingExperience.getUser_id())
-                .projects_id(experienceInfo.getProjects_id())
-                .title(experienceInfo.getTitle())
-                .exp_date(experienceInfo.getExp_date())
-                .free_content(experienceInfo.getFree_content())
-                .common_question_answer(experienceInfo.getCommon_question_answer())
-                .projects(projects)
-                .build();
+                // Check if the user is the owner of the experience
+                if (!existingExperience.getUser_id().equals(experienceInfo.getUser_id())) {
+                    return new ResponseDTO(false, "User is not authorized to update this experience");
+                }
 
-        answerHistoriesRepo.deleteByExperiencesId(experienceId);
-        projectDataRepo.deleteByExperiencesId(experienceId);
+                // Check if Question and Tag with id is present
+                checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
-        createOrUpdateAnswerHistories(experienceInfo, updatedExperience);
-        createOrUpdateProjectData(experienceInfo, updatedExperience);
+                Experiences updatedExperience = Experiences.builder()
+                        .id(existingExperience.getId())
+                        .user_id(existingExperience.getUser_id())
+                        .projects_id(experienceInfo.getProjects_id())
+                        .title(experienceInfo.getTitle())
+                        .exp_date(experienceInfo.getExp_date())
+                        .free_content(experienceInfo.getFree_content())
+                        .common_question_answer(experienceInfo.getCommon_question_answer())
+                        .projects(projects)
+                        .build();
 
-        updatedExperience = experiencesRepo.save(updatedExperience);
+                // Update AnswerHistories
+                Experiences finalUpdatedExperience = updatedExperience;
+                List<AnswerHistories> answerHistoriesList = experienceInfo.getQuestion_ids().stream()
+                        .map(questionId -> {
+                            int index = experienceInfo.getQuestion_ids().indexOf(questionId);
+                            String answer = experienceInfo.getQuestion_answers().get(index);
+                            Integer tagId = experienceInfo.getTag_ids().get(index);
+                            StoredQuestionInfo question = storedQuestionInfoRepo.findById(questionId).orElseThrow();
 
-        return new ExperiencesDTO.Read(updatedExperience);
+                            return AnswerHistories.builder()
+                                    .question_id(questionId)
+                                    .tag_id(tagId)
+                                    .experience_id(finalUpdatedExperience.getId())
+                                    .content(answer)
+                                    .experiences(finalUpdatedExperience)
+                                    .build();
+                        }).collect(Collectors.toList());
+                updatedExperience.setAnswerHistoriesList(answerHistoriesList);
+
+                updatedExperience = experiencesRepo.save(updatedExperience);
+
+                // Update ProjectData for references
+                projectDataRepo.deleteByExperiencesId(updatedExperience.getId());
+                Experiences finalUpdatedExperience1 = updatedExperience;
+                List<ProjectData> projectDataList = experienceInfo.getReference_links().stream()
+                        .map(link -> ProjectData.builder()
+                                .experiencesId(finalUpdatedExperience1.getId())
+                                .resources_type(1) // Assuming 1 is for reference links, adjust as needed
+                                .references_link(link)
+                                .projects(projects)
+                                .build())
+                        .collect(Collectors.toList());
+                projectDataRepo.saveAll(projectDataList);
+
+                return new ResponseDTO(true, "Experience updated successfully", new ExperiencesDTO.Read(updatedExperience));
+            } else {
+                return new ResponseDTO(false, "Experience not found");
+            }
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while updating the experience: " + e.getMessage());
+        }
     }
 
     private void createOrUpdateAnswerHistories(ExperiencesDTO.ExperienceInfo experienceInfo, Experiences experience) {
-        List<AnswerHistories> answerHistoriesList = IntStream.range(0, experienceInfo.getQuestion_ids().size())
-                .mapToObj(i -> {
-                    Integer questionId = experienceInfo.getQuestion_ids().get(i);
-                    String answer = experienceInfo.getQuestion_answers().get(i);
-                    Integer tagId = experienceInfo.getTag_ids().get(i);
-                    StoredQuestionInfo question = storedQuestionInfoRepo.findById(questionId).orElseThrow();
+        for (int i = 0; i < experienceInfo.getTag_ids().size(); i++) {
+            Integer questionId = experienceInfo.getQuestion_ids().get(i);
+            String answer = experienceInfo.getQuestion_answers().get(i);
+            Integer tagId = experienceInfo.getTag_ids().get(i);
 
-                    return AnswerHistories.builder()
-                            .question_id(questionId)
-                            .tag_id(tagId)
-                            .experience_id(experience.getId())
-                            .content(answer)
-                            .experiences(experience)
-                            .build();
-                })
-                .collect(Collectors.toList());
-
-        answerHistoriesRepo.saveAll(answerHistoriesList);
-        experience.setAnswerHistoriesList(answerHistoriesList);
+            AnswerHistories answerHistories = AnswerHistories.builder()
+                    .question_id(questionId)
+                    .tag_id(tagId)
+                    .experience_id(experience.getId())
+                    .content(answer)
+                    .experiences(experience)
+                    .build();
+            answerHistoriesRepo.save(answerHistories);
+        }
     }
 
     private void createOrUpdateProjectData(ExperiencesDTO.ExperienceInfo experienceInfo, Experiences experience) {
@@ -264,5 +309,40 @@ public class ExperiencesService {
                 .collect(Collectors.toList());
 
         projectDataRepo.saveAll(projectDataList);
+    }
+
+    private void checkQuestionsAndTags(List<Integer> questionIds, List<Integer> tagIds) {
+        for (int i = 0; i < questionIds.size(); i++) {
+            Integer questionId = questionIds.get(i);
+            Integer tagId = tagIds.get(i);
+
+            storedQuestionInfoRepo.findById(questionId)
+                    .orElseThrow(() -> new NoSuchElementException("Question with ID " + questionId + " not found"));
+            storedTagInfoRepo.findById(tagId)
+                    .orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"));
+        }
+    }
+
+
+    @Transactional
+    public ResponseDTO deleteExperience(Integer id, UUID userId) {
+        Optional<Experiences> optionalExperience = experiencesRepo.findById(id);
+        if (optionalExperience.isPresent()) {
+            Experiences experience = optionalExperience.get();
+
+            // Check if the user is the owner of the experience
+            if (!experience.getUser_id().equals(userId)) {
+                return new ResponseDTO(false, "User is not authorized to delete this experience");
+            }
+
+            // Delete related entities
+            answerHistoriesRepo.deleteByExperiencesId(id);
+            projectDataRepo.deleteByExperiencesId(id);
+            experiencesRepo.delete(experience);
+
+            return new ResponseDTO(true, "Experience deleted successfully");
+        } else {
+            return new ResponseDTO(false, "Experience not found");
+        }
     }
 }
