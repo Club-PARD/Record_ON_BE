@@ -24,12 +24,14 @@ public class ExperiencesController {
     }
 
     @PostMapping()
+    @Operation(summary = "경험 생성", description = "경험 생성")
     public ResponseEntity<ResponseDTO> createExperience(@RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
         ResponseDTO response = experiencesService.createExperience(experienceInfo);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(response);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "경험 상세보기", description = "경험 상세보기")
     public ResponseDTO getExperienceDetails(@PathVariable("id") Integer experience_id) {
         return experiencesService.getExperienceDetails(experience_id);
     }
@@ -47,12 +49,14 @@ public class ExperiencesController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "경험 수정", description = "경험 수정")
     public ResponseEntity<ResponseDTO> updateExperience(@PathVariable Integer id, @RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
         ResponseDTO response = experiencesService.updateExperience(id, experienceInfo);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "경험 삭제", description = "경험 삭제")
     public ResponseEntity<ResponseDTO> deleteExperience(@PathVariable Integer id, @RequestBody UserDTO.UserIdDTO userIdDTO) {
         ResponseDTO response = experiencesService.deleteExperience(id, userIdDTO.getUser_id());
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);

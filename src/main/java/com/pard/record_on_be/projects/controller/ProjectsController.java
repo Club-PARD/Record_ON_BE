@@ -19,6 +19,7 @@ public class ProjectsController {
     private final ProjectsService projectsService;
 
     @PostMapping("")
+    @Operation(summary = "프로젝트 생성", description = "프로젝트 생성")
     public ResponseEntity<ResponseDTO> createProject(@RequestBody ProjectsDTO.Create projectCreateDTO) {
         ResponseDTO response = projectsService.createProject(projectCreateDTO);
         if (response.isSuccess()) {

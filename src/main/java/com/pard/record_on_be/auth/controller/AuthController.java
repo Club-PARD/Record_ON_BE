@@ -3,6 +3,7 @@ package com.pard.record_on_be.auth.controller;
 import com.pard.record_on_be.auth.service.AuthService;
 import com.pard.record_on_be.util.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "구글 로그인으로 받은 정보 넘겨주세요~")
     public Map<String, Object> googleLogin(@RequestBody Map<String, Object> userData, HttpServletResponse response) {
         String email = (String) userData.get("email");
         String name = (String) userData.get("name");
@@ -58,6 +60,7 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
+    @Operation(summary = "Access 토큰 검증", description = "Access 토큰 검증")
     public String validateToken(HttpServletRequest request) {
         Optional<Cookie> accessTokenCookie = Arrays.stream(request.getCookies())
                 .filter(cookie -> "access_token".equals(cookie.getName()))
@@ -76,6 +79,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "Access 토큰 갱신", description = "Refresh 토큰 이용해 Access 토큰 갱신")
     public String refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> refreshTokenCookie = Arrays.stream(request.getCookies())
                 .filter(cookie -> "refresh_token".equals(cookie.getName()))
