@@ -6,14 +6,18 @@ import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
 import com.pard.record_on_be.experiences.service.ExperiencesService;
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
+import com.pard.record_on_be.user.dto.UserDTO;
+import com.pard.record_on_be.util.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/experience")
@@ -25,14 +29,21 @@ public class ExperiencesController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ExperiencesDTO.Read> createExperience(@RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
-        ExperiencesDTO.Read response = experiencesService.createExperience(experienceInfo);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ResponseDTO> createExperience(@RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
+        ResponseDTO response = experiencesService.createExperience(experienceInfo);
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(response);
     }
 
     @PutMapping("/update/{experienceId}")
-    public ExperiencesDTO.Read updateExperience(@PathVariable Integer experienceId, @RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
-        return experiencesService.updateExperience(experienceId, experienceInfo);
+    public ResponseEntity<ResponseDTO> updateExperience(@PathVariable Integer experienceId, @RequestBody ExperiencesDTO.ExperienceInfo experienceInfo) {
+        ResponseDTO response = experiencesService.updateExperience(experienceId, experienceInfo);
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ResponseDTO> deleteExperience(@PathVariable Integer id, @RequestBody UserDTO.UserIdDTO userIdDTO) {
+        ResponseDTO response = experiencesService.deleteExperience(id, userIdDTO.getUser_id());
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
 
     @GetMapping()

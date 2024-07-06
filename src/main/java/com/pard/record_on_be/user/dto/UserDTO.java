@@ -34,6 +34,12 @@ public class UserDTO {
 
     @Getter
     @Setter
+    public static class UserIdDTO{
+        private UUID user_id;
+    }
+
+    @Getter
+    @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Read{
         private UUID id;
