@@ -4,9 +4,6 @@ import com.pard.record_on_be.answer_histories.entity.AnswerHistories;
 import com.pard.record_on_be.answer_histories.repo.AnswerHistoriesRepo;
 import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
 import com.pard.record_on_be.experiences.entity.Experiences;
-
-import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
-import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.experiences.repo.ExperiencesRepo;
 import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.project_data.repo.ProjectDataRepo;
@@ -16,10 +13,7 @@ import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
 import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
 import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
-import com.pard.record_on_be.projects.entity.Projects;
-import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.util.ResponseDTO;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class ExperiencesService {
@@ -40,7 +33,6 @@ public class ExperiencesService {
     private final StoredTagInfoRepo storedTagInfoRepo;
     private final ProjectDataRepo projectDataRepo;
 
-    private static final Logger logger = LoggerFactory.getLogger(ExperiencesService.class);
 
     public ExperiencesService(ExperiencesRepo experiencesRepo, StoredQuestionInfoRepo storedQuestionInfoRepo, AnswerHistoriesRepo answerHistoriesRepo, ProjectsRepo projectsRepo, StoredTagInfoRepo storedTagInfoRepo, ProjectDataRepo projectDataRepo) {
         this.experiencesRepo = experiencesRepo;
@@ -193,6 +185,9 @@ public class ExperiencesService {
             Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
 
+            // Check if Question and Tag with id is present
+            checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
+
             Experiences experience = Experiences.builder()
                     .user_id(experienceInfo.getUser_id())
                     .projects_id(experienceInfo.getProjects_id())
@@ -230,15 +225,7 @@ public class ExperiencesService {
                 }
 
                 // Check if Question and Tag with id is present
-                for (int i = 0; i < experienceInfo.getQuestion_ids().size(); i++) {
-                    Integer questionId = experienceInfo.getQuestion_ids().get(i);
-                    Integer tagId = experienceInfo.getTag_ids().get(i);
-
-                    storedQuestionInfoRepo.findById(questionId)
-                            .orElseThrow(() -> new NoSuchElementException("Question with ID " + questionId + " not found"));
-                    storedTagInfoRepo.findById(tagId)
-                            .orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"));
-                }
+                checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
                 Experiences updatedExperience = Experiences.builder()
                         .id(existingExperience.getId())
@@ -302,13 +289,6 @@ public class ExperiencesService {
             String answer = experienceInfo.getQuestion_answers().get(i);
             Integer tagId = experienceInfo.getTag_ids().get(i);
 
-            try {
-                storedQuestionInfoRepo.findById(questionId)
-                        .orElseThrow(() -> new NoSuchElementException("Question with ID " + questionId + " not found"));
-                storedTagInfoRepo.findById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"));
-            } catch (NoSuchElementException e) {
-                throw e;
-            }
             AnswerHistories answerHistories = AnswerHistories.builder()
                     .question_id(questionId)
                     .tag_id(tagId)
@@ -333,6 +313,19 @@ public class ExperiencesService {
         projectDataRepo.saveAll(projectDataList);
     }
 
+    private void checkQuestionsAndTags(List<Integer> questionIds, List<Integer> tagIds) {
+        for (int i = 0; i < questionIds.size(); i++) {
+            Integer questionId = questionIds.get(i);
+            Integer tagId = tagIds.get(i);
+
+            storedQuestionInfoRepo.findById(questionId)
+                    .orElseThrow(() -> new NoSuchElementException("Question with ID " + questionId + " not found"));
+            storedTagInfoRepo.findById(tagId)
+                    .orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"));
+        }
+    }
+
+
     @Transactional
     public ResponseDTO deleteExperience(Integer id, UUID userId) {
         Optional<Experiences> optionalExperience = experiencesRepo.findById(id);
@@ -354,5 +347,4 @@ public class ExperiencesService {
             return new ResponseDTO(false, "Experience not found");
         }
     }
-
 }
