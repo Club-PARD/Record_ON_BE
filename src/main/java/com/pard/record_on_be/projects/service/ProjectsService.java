@@ -5,15 +5,14 @@ import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
+import com.pard.record_on_be.util.ResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,8 +20,40 @@ import java.util.stream.Collectors;
 public class ProjectsService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
 
-    private final ProjectsRepo projectRepo;
+    private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
+
+    @Transactional
+    public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
+        try {
+            // 없는 유저이면 예외 발생
+            User user = userRepo.findById(projectCreateDTO.getUser_id())
+                    .orElseThrow(() -> new NoSuchElementException("User with ID " + projectCreateDTO.getUser_id() + " not found"));
+
+            Projects project = Projects.builder()
+                    .user_id(projectCreateDTO.getUser_id())
+                    .name(projectCreateDTO.getName())
+                    .start_date(projectCreateDTO.getStart_date())
+                    .update_date(new Date()) // 현재 날짜로 업데이트 날짜 설정
+                    .finish_date(projectCreateDTO.getFinish_date())
+                    .description(projectCreateDTO.getDescription())
+                    .picture(projectCreateDTO.getPicture())
+                    .is_finished(projectCreateDTO.getIs_finished())
+                    .part(projectCreateDTO.getPart())
+                    .user(user)
+                    .build();
+
+            project = projectsRepo.save(project);
+
+            return new ResponseDTO(true, "Project created successfully", project);
+        }catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while creating the project: " + e.getMessage());
+        }
+    }
+
+
 
     // 사용자의 모든 project를 필요한 내용만 뽑아서 보내주기 위해 dto 만들어서 return 해주기
     public ProjectsDTO.ReadAll findAll(UUID userId) {

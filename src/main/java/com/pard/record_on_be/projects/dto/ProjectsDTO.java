@@ -3,16 +3,16 @@ package com.pard.record_on_be.projects.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.user.entity.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class ProjectsDTO {
-    @Getter
-    @Setter
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Create { // create가 dto에서 entity로 저장
         private UUID user_id;
         private String name;
@@ -24,6 +24,7 @@ public class ProjectsDTO {
         private Integer is_finished;
         private String part;
     }
+
 
     @Getter
     @Setter

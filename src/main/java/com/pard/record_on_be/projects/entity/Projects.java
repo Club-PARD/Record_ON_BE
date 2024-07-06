@@ -1,5 +1,6 @@
 package com.pard.record_on_be.projects.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
 import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.project_data.entity.ProjectData;
@@ -55,6 +56,7 @@ public class Projects {
 
     @ManyToOne
     @JoinColumn(name = "user", referencedColumnName = "id")
+    @JsonIgnore // 순환참조 방지
     private User user;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
