@@ -1,17 +1,15 @@
 package com.pard.record_on_be.util;
 
-import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class ResponseDTO {
-    // Getters and Setters
     @Getter
     private boolean success;
     private String message;
-    private Object experience;
+    private Object object;
 
 
     public ResponseDTO(boolean success, String message) {
@@ -19,15 +17,9 @@ public class ResponseDTO {
         this.message = message;
     }
 
-    public ResponseDTO(boolean success, String message, ExperiencesDTO.Read experience) {
+    public ResponseDTO(boolean success, String message, Object object) {
         this.success = success;
         this.message = message;
-        this.experience = experience;
-    }
-
-    public ResponseDTO(boolean success, String message, ExperiencesDTO.ExperienceDetailsResponse experienceDetailsResponse) {
-        this.success = success;
-        this.message = message;
-        this.experience = experienceDetailsResponse;
+        this.object = object;
     }
 }
