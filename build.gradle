@@ -41,6 +41,9 @@ dependencies {
 //    // Servlet API dependency
 //    implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation "javax.xml.bind:jaxb-api:2.3.0"
+
+    // S3 dependency
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {
