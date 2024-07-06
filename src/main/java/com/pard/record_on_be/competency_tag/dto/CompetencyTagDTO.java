@@ -2,7 +2,6 @@ package com.pard.record_on_be.competency_tag.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 

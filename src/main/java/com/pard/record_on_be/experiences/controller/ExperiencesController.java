@@ -2,14 +2,10 @@ package com.pard.record_on_be.experiences.controller;
 
 
 import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
-import com.pard.record_on_be.experiences.entity.Experiences;
-import com.pard.record_on_be.experiences.dto.ExperiencesDTO;
 import com.pard.record_on_be.experiences.service.ExperiencesService;
-import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.user.dto.UserDTO;
 import com.pard.record_on_be.util.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/experience")

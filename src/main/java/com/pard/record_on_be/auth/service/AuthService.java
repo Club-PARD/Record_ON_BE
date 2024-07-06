@@ -17,7 +17,6 @@ public class AuthService {
     }
 
     public Map<String, Object> saveOrUpdateUser(String email, String name, String picture) {
-//        Boolean isNewUser = userService.isNewUser();
         User user = userService.createOrUpdateUser(email, name, picture);
         boolean isNewUser = user.getCreatedDate().equals(user.getModifiedDate()); // CreatedDate와 ModifiedDate가 동일하면 신규 유저
 

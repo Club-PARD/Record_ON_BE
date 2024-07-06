@@ -2,7 +2,6 @@ package com.pard.record_on_be.answer_histories.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pard.record_on_be.answer_histories.entity.AnswerHistories;
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -14,8 +14,6 @@ import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
 import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
 import com.pard.record_on_be.util.ResponseDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
