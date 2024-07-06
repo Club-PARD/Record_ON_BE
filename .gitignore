@@ -232,5 +232,6 @@ $RECYCLE.BIN/
 # Ignore application-prod.properties file
 application-prod.properties
 application.properties
+application.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,java,intellij,windows
