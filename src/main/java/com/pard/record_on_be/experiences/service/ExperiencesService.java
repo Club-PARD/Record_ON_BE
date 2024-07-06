@@ -161,20 +161,47 @@ public class ExperiencesService {
         }
     }
 
-    // 단 project view 페이지에 넘어가는 데이터`
-    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id) {
-        Optional<Projects> projects = projectsRepo.findById(project_id);
-        Projects project = projects.get();
-        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
-                project.getName(),
-                project.getPicture(),
-                project.getIs_finished(),
-                project.getStart_date(),
-                project.getFinish_date(),
-                project.getDescription(),
-                project.getPart(),
-                findExperienceShortByProjectId(project_id)
-        );
+//    // 단 project view 페이지에 넘어가는 데이터`
+//    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id, UUID user_id) {
+//
+//        Optional<Projects> projects = projectsRepo.findById(project_id);
+//        Projects project = projects.get();
+//        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+//                project.getName(),
+//                project.getPicture(),
+//                project.getIs_finished(),
+//                project.getStart_date(),
+//                project.getFinish_date(),
+//                project.getDescription(),
+//                project.getPart(),
+//                findExperienceShortByProjectId(project_id)
+//        );
+//    }
+    public Object findAllExpCollectionPage(Integer project_id, UUID user_id) {
+        try {
+            Projects project = projectsRepo.findById(project_id)
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + project_id + " not found"));
+
+            // Check if the user is the owner of the project
+            if (!project.getUser_id().equals(user_id)) {
+                return new ResponseDTO(false, "User is not authorized to view this project");
+            }
+
+            return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+                    project.getName(),
+                    project.getPicture(),
+                    project.getIs_finished(),
+                    project.getStart_date(),
+                    project.getFinish_date(),
+                    project.getDescription(),
+                    project.getPart(),
+                    findExperienceShortByProjectId(project_id)
+            );
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while fetching the project: " + e.getMessage());
+        }
     }
 
     @Transactional

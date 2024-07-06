@@ -37,7 +37,7 @@ public class ExperiencesController {
 
     @PostMapping("/project")
     @Operation(summary = "경험카드 모여있는 전체 페이지 뷰", description = "프로젝트를 처음 클릭했을 때 보여줄 경험들이 모여있는 페이지 입니다.")
-    public ExperiencesDTO.ExperiencesCollectionPageResponse getExperiences(@RequestBody ExperiencesDTO.ExperiencesCollectionPageRequest experiencesCollectionPageRequest) {
+    public Object getExperiences(@RequestBody ExperiencesDTO.ExperiencesCollectionPageRequest experiencesCollectionPageRequest) {
         return experiencesService.findAllExpCollectionPage(experiencesCollectionPageRequest.getProject_id(), experiencesCollectionPageRequest.getUser_id());
     }
 
