@@ -161,22 +161,6 @@ public class ExperiencesService {
         }
     }
 
-//    // 단 project view 페이지에 넘어가는 데이터`
-//    public ExperiencesDTO.ExperiencesCollectionPageResponse findAllExpCollectionPage(Integer project_id, UUID user_id) {
-//
-//        Optional<Projects> projects = projectsRepo.findById(project_id);
-//        Projects project = projects.get();
-//        return new ExperiencesDTO.ExperiencesCollectionPageResponse(
-//                project.getName(),
-//                project.getPicture(),
-//                project.getIs_finished(),
-//                project.getStart_date(),
-//                project.getFinish_date(),
-//                project.getDescription(),
-//                project.getPart(),
-//                findExperienceShortByProjectId(project_id)
-//        );
-//    }
     public Object findAllExpCollectionPage(Integer project_id, UUID user_id) {
         try {
             Projects project = projectsRepo.findById(project_id)
