@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class ReferenceService {
     public ReferenceDTO.UrlMetadata fetchMetadata(String url) throws IOException {
-        String decodedUrl, title = "", imageUrl = "";
+        String decodedUrl, title = "", faviconUrl = "";
         try {
             // URL 디코딩
             decodedUrl = URLDecoder.decode(url, StandardCharsets.UTF_8.toString());
@@ -24,8 +24,16 @@ public class ReferenceService {
             // URL에서 메타데이터 추출
             Document doc = Jsoup.connect(decodedUrl).get();
             title = doc.title();
-            Element metaImage = doc.select("meta[property=og:image]").first();
-            imageUrl = metaImage != null ? metaImage.attr("content") : "";
+
+            // 파비콘을 찾는 코드
+            Element favicon = doc.select("link[rel=icon]").first();
+            if (favicon == null) {
+                favicon = doc.select("link[rel=shortcut icon]").first();
+            }
+            if (favicon == null) {
+                favicon = doc.select("link[rel=apple-touch-icon]").first();
+            }
+            faviconUrl = favicon != null ? favicon.attr("href") : "";
         } catch (Exception e) {
             e.printStackTrace();
             // 예외가 발생한 경우 적절한 메시지와 함께 빈 값을 반환
@@ -33,6 +41,6 @@ public class ReferenceService {
         }
 
         // 메타데이터를 담은 객체 반환
-        return new ReferenceDTO.UrlMetadata(title, imageUrl);
+        return new ReferenceDTO.UrlMetadata(title, faviconUrl);
     }
 }
