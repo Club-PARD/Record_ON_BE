@@ -1,6 +1,8 @@
 package com.pard.record_on_be.experiences.dto;
 
 import com.pard.record_on_be.experiences.entity.Experiences;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -115,5 +117,19 @@ public class ExperiencesDTO {
             this.free_content = experiences.getFree_content();
             this.common_question_answer = experiences.getCommon_question_answer();
         }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ExperienceDetailsResponse {
+        private String experience_name;
+        private Date exp_date;
+        private List<Integer> tag_id;
+        private List<String> tag_name;
+        private String free_content;
+        private List<String> reference_link;
+        private String common_question_answer;
+        private List<Integer> question_id;
+        private List<String> question_answer;
     }
 }

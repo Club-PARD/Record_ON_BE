@@ -41,6 +41,85 @@ public class ExperiencesService {
         this.projectDataRepo = projectDataRepo;
     }
 
+
+    @Transactional
+    public ResponseDTO createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
+        try {
+            Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
+
+            // Check if Question and Tag with id is present
+            checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
+
+            Experiences experience = Experiences.builder()
+                    .user_id(experienceInfo.getUser_id())
+                    .projects_id(experienceInfo.getProjects_id())
+                    .title(experienceInfo.getTitle())
+                    .exp_date(experienceInfo.getExp_date())
+                    .free_content(experienceInfo.getFree_content())
+                    .common_question_answer(experienceInfo.getCommon_question_answer())
+                    .build();
+            experience.setProjects(projects); // 프로젝트 설정을 빌더 후에 설정
+            experience = experiencesRepo.save(experience); // 저장
+
+            createOrUpdateAnswerHistories(experienceInfo, experience);
+            createOrUpdateProjectData(experienceInfo, experience);
+
+            return new ResponseDTO(true, "Experience created successfully", new ExperiencesDTO.Read(experience));
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while creating the experience: " + e.getMessage());
+        }
+    }
+
+    public ResponseDTO getExperienceDetails(Integer experienceId) {
+        try {
+            Experiences experience = experiencesRepo.findById(experienceId)
+                    .orElseThrow(() -> new NoSuchElementException("Experience with ID " + experienceId + " not found"));
+
+            List<Integer> tagIds = experience.getAnswerHistoriesList().stream()
+                    .map(AnswerHistories::getTag_id)
+                    .toList();
+
+            List<String> tagNames = tagIds.stream()
+                    .map(tagId -> storedTagInfoRepo.findById(tagId)
+                            .orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"))
+                            .getTagName())
+                    .toList();
+
+            List<Integer> questionIds = experience.getAnswerHistoriesList().stream()
+                    .map(AnswerHistories::getQuestion_id)
+                    .toList();
+
+            List<String> questionAnswers = experience.getAnswerHistoriesList().stream()
+                    .map(AnswerHistories::getContent)
+                    .toList();
+
+            List<String> referenceLinks = projectDataRepo.findAllByExperiencesId(experienceId).stream()
+                    .map(ProjectData::getReferences_link)
+                    .collect(Collectors.toList());
+
+            ExperiencesDTO.ExperienceDetailsResponse response = new ExperiencesDTO.ExperienceDetailsResponse(
+                    experience.getTitle(),
+                    experience.getExp_date(),
+                    tagIds,
+                    tagNames,
+                    experience.getFree_content(),
+                    referenceLinks,
+                    experience.getCommon_question_answer(),
+                    questionIds,
+                    questionAnswers
+            );
+
+            return new ResponseDTO(true, "Experience details retrieved successfully", response);
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while fetching the experience details: " + e.getMessage());
+        }
+    }
+
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesByFilter(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
         List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
@@ -188,36 +267,6 @@ public class ExperiencesService {
         }
     }
 
-    @Transactional
-    public ResponseDTO createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
-        try {
-            Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
-                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
-
-            // Check if Question and Tag with id is present
-            checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
-
-            Experiences experience = Experiences.builder()
-                    .user_id(experienceInfo.getUser_id())
-                    .projects_id(experienceInfo.getProjects_id())
-                    .title(experienceInfo.getTitle())
-                    .exp_date(experienceInfo.getExp_date())
-                    .free_content(experienceInfo.getFree_content())
-                    .common_question_answer(experienceInfo.getCommon_question_answer())
-                    .build();
-            experience.setProjects(projects); // 프로젝트 설정을 빌더 후에 설정
-            experience = experiencesRepo.save(experience); // 저장
-
-            createOrUpdateAnswerHistories(experienceInfo, experience);
-            createOrUpdateProjectData(experienceInfo, experience);
-
-            return new ResponseDTO(true, "Experience created successfully", new ExperiencesDTO.Read(experience));
-        } catch (NoSuchElementException e) {
-            return new ResponseDTO(false, e.getMessage());
-        } catch (Exception e) {
-            return new ResponseDTO(false, "An error occurred while creating the experience: " + e.getMessage());
-        }
-    }
 
     @Transactional
     public ResponseDTO updateExperience(Integer experienceId, ExperiencesDTO.ExperienceInfo experienceInfo) {

@@ -11,7 +11,8 @@ public class ResponseDTO {
     @Getter
     private boolean success;
     private String message;
-    private ExperiencesDTO.Read experience;
+    private Object experience;
+
 
     public ResponseDTO(boolean success, String message) {
         this.success = success;
@@ -22,5 +23,11 @@ public class ResponseDTO {
         this.success = success;
         this.message = message;
         this.experience = experience;
+    }
+
+    public ResponseDTO(boolean success, String message, ExperiencesDTO.ExperienceDetailsResponse experienceDetailsResponse) {
+        this.success = success;
+        this.message = message;
+        this.experience = experienceDetailsResponse;
     }
 }
