@@ -8,6 +8,8 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -33,7 +35,13 @@ public class ReferenceService {
             if (favicon == null) {
                 favicon = doc.select("link[rel=apple-touch-icon]").first();
             }
-            faviconUrl = favicon != null ? favicon.attr("href") : "";
+            if (favicon != null) {
+                faviconUrl = favicon.attr("href");
+                // 절대 경로로 변환
+                URL baseUrl = new URL(decodedUrl);
+                URL absoluteFaviconUrl = new URL(baseUrl, faviconUrl);
+                faviconUrl = absoluteFaviconUrl.toString();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             // 예외가 발생한 경우 적절한 메시지와 함께 빈 값을 반환
