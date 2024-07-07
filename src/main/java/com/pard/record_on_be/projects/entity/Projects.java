@@ -82,6 +82,12 @@ public class Projects {
         projectData.setProjects(this);
     }
 
+    public void finishProject() {
+//        finish_date = new Date();
+//        finish_date.setTime(finish_date.getTime() + 24 * 60 * 60 * 1000);
+        is_finished = 1;
+    }
+
     public void addCompetencyTag(CompetencyTag competencyTag) {
         competencyTagList.add(competencyTag);
         competencyTag.setProjects(this);
