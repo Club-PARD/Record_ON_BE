@@ -256,6 +256,42 @@ public class ProjectsService {
         }
     }
 
+    @Transactional
+    public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Update projectUpdateDTO, UUID userId) {
+        try {
+            Projects existingProject = projectsRepo.findById(projectId)
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+
+            if (existingProject.getUser_id().equals(userId)) {
+                Projects updatedProject = Projects.builder()
+                        .id(existingProject.getId())
+                        .user_id(existingProject.getUser_id())
+                        .name(projectUpdateDTO.getName() != null ? projectUpdateDTO.getName() : existingProject.getName())
+                        .start_date(projectUpdateDTO.getStart_date() != null ? projectUpdateDTO.getStart_date() : existingProject.getStart_date())
+                        .finish_date(projectUpdateDTO.getFinish_date() != null ? projectUpdateDTO.getFinish_date() : existingProject.getFinish_date())
+                        .description(projectUpdateDTO.getDescription() != null ? projectUpdateDTO.getDescription() : existingProject.getDescription())
+                        .part(projectUpdateDTO.getPart() != null ? projectUpdateDTO.getPart() : existingProject.getPart())
+                        .is_finished(existingProject.getIs_finished())
+                        .update_date(new Date())
+                        .user(existingProject.getUser())
+                        .experiencesList(existingProject.getExperiencesList())
+                        .projectDataList(existingProject.getProjectDataList())
+                        .competencyTagList(existingProject.getCompetencyTagList())
+                        .build();
+
+                projectsRepo.save(updatedProject);
+
+                return new ResponseDTO(true, "Project updated successfully", updatedProject);
+            } else {
+                return new ResponseDTO(false, "You are not authorized to update this project");
+            }
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while updating the project: " + e.getMessage());
+        }
+    }
+
     public ResponseDTO deleteProject(Integer projectId, UUID userId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
         if (projectOpt.isPresent()) {

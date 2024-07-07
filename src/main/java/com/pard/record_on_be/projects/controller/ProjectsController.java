@@ -56,6 +56,13 @@ public class ProjectsController {
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
 
+    @PutMapping("/{projectId}")
+    @Operation(summary = "프로젝트 수정", description = "프로젝트를 수정합니다.")
+    public ResponseEntity<ResponseDTO> updateProject(@PathVariable Integer projectId, @RequestBody ProjectsDTO.Update projectUpdateDTO) {
+        ResponseDTO response = projectsService.updateProject(projectId, projectUpdateDTO, projectUpdateDTO.getUser_id());
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
+    }
+
     @DeleteMapping("/{projectId}")
     @Operation(summary = "프로젝트 삭제", description = "프로젝트를 삭제합니다.")
     public ResponseEntity<ResponseDTO> deleteProject(@PathVariable Integer projectId, @RequestBody UserDTO.UserIdDTO userIdDTO) {
