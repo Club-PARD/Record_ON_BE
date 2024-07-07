@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectsService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
-
-    private final S3Service s3Service;
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
 
@@ -39,7 +37,7 @@ public class ProjectsService {
                     .update_date(new Date()) // 현재 날짜로 업데이트 날짜 설정
                     .finish_date(projectCreateDTO.getFinish_date())
                     .description(projectCreateDTO.getDescription())
-                    .picture(s3Service.uploadProfile(projectCreateDTO.getPicture()))
+                    .picture("")
                     .is_finished(projectCreateDTO.getIs_finished())
                     .part(projectCreateDTO.getPart())
                     .user(user)
