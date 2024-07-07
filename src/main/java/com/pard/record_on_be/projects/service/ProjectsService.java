@@ -23,6 +23,10 @@ public class ProjectsService {
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
 
+    public String getUrl(Integer projectId) {
+        return projectsRepo.findById(projectId).get().getPicture();
+    }
+
     @Transactional
     public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
         try {

@@ -1,5 +1,6 @@
 package com.pard.record_on_be.s3.controller;
 
+import com.pard.record_on_be.projects.service.ProjectsService;
 import com.pard.record_on_be.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.io.IOException;
 @RequestMapping("/api")
 public class S3Controller {
     private final S3Service s3Service;
+    private final ProjectsService projectsService;
     @PostMapping("/s3/{projects_id}")
     public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId, @RequestParam("image") MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty()) {
@@ -23,6 +25,11 @@ public class S3Controller {
         String url = s3Service.uploadProfile(multipartFile);
         s3Service.saveS3Url(projectsId, url);
         return url;
+    }
+
+    @GetMapping("/s3/{projects_id}")
+    public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId) throws IOException {
+        return projectsService.getUrl(projectsId);
     }
 
 
