@@ -148,12 +148,48 @@ public class ExperiencesService {
                     return false;
                 }).collect(Collectors.toList());
 
-        // 이미 추가된 experience_id를 추적하기 위해 Set 사용
         Set<Integer> filteredExperienceIds = expFilteredList.stream()
                 .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
                 .collect(Collectors.toSet());
 
-        // 2차 필터링: free_content에서 text를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
+
+        // 2차 필터링: 제목에서 필터링
+        experienceSearchResponseList.stream().filter(
+                experienceSearchResponse -> {
+                    Integer experienceId = experienceSearchResponse.getExperience_id();
+                    if (!filteredExperienceIds.contains(experienceId)) {
+                        Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
+                        if (SecondFilteredOptional.isPresent()) {
+                            Experiences experiences = SecondFilteredOptional.get();
+                            return experiences.getTitle().contains(text);
+                        }
+                    }
+                    return false;
+                }
+        ).forEach(experienceSearchResponse -> {
+            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+            expFilteredList.add(experienceSearchResponse);
+        });
+
+        // 3차 필터링: 공통 질문란에서 필터링
+        experienceSearchResponseList.stream().filter(
+                experienceSearchResponse -> {
+                    Integer experienceId = experienceSearchResponse.getExperience_id();
+                    if (!filteredExperienceIds.contains(experienceId)) {
+                        Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
+                        if (SecondFilteredOptional.isPresent()) {
+                            Experiences experiences = SecondFilteredOptional.get();
+                            return experiences.getCommon_question_answer().contains(text);
+                        }
+                    }
+                    return false;
+                }
+        ).forEach(experienceSearchResponse -> {
+            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+            expFilteredList.add(experienceSearchResponse);
+        });
+
+        // 4차 필터링: free_content에서 text를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
         experienceSearchResponseList.stream().filter(
                 experienceSearchResponse -> {
                     Integer experienceId = experienceSearchResponse.getExperience_id();

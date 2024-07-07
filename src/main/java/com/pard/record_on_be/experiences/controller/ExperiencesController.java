@@ -37,7 +37,7 @@ public class ExperiencesController {
     }
 
     @PostMapping("/search")
-    @Operation(summary = "하나의 프로젝트 대상 경험을 필터링", description = "사용자가 설정한 조건을 갖춘 경험들을 보여줍니다.")
+    @Operation(summary = "하나의 프로젝트 대상 경험을 필터링", description = "사용자가 설정한 조건을 갖춘 경험들을 보여줍니다.경험 태그, 날짜, 텍스트 검색 가능")
     public List<ExperiencesDTO.ExperienceSearchResponse> getSearchExperiences(@RequestBody ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
         return experiencesService.findExperiencesByFilter(experienceSearchRequest);
     }
