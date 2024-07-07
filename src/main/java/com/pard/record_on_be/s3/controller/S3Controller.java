@@ -14,14 +14,16 @@ import java.io.IOException;
 @RequestMapping("/api")
 public class S3Controller {
     private final S3Service s3Service;
-    @PostMapping("/s3")
-    public String uploadProfileImage(@RequestParam("image") MultipartFile multipartFile) throws IOException {
+    @PostMapping("/s3/{projects_id}")
+    public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId, @RequestParam("image") MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
-        return s3Service.uploadProfile(multipartFile);
+        // projects_id와 image를 이용해 로직을 처리하는 부분
+        String url = s3Service.uploadProfile(multipartFile);
+        s3Service.saveS3Url(projectsId, url);
+        return url;
     }
-
 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
