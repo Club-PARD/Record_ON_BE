@@ -3,9 +3,11 @@ package com.pard.record_on_be.projects.controller;
 
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.service.ProjectsService;
+import com.pard.record_on_be.user.dto.UserDTO;
 import com.pard.record_on_be.util.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +21,7 @@ public class ProjectsController {
     private final ProjectsService projectsService;
 
     @PostMapping("")
-    @Operation(summary = "프로젝트 생성", description = "프로젝트 생성")
+    @Operation(summary = "프로젝트 생성", description = "프로젝트 생성합니다.")
     public ResponseEntity<ResponseDTO> createProject(@RequestBody ProjectsDTO.Create projectCreateDTO) {
         ResponseDTO response = projectsService.createProject(projectCreateDTO);
         if (response.isSuccess()) {
@@ -37,5 +39,12 @@ public class ProjectsController {
     @Operation(summary = "전체 프로젝트 대상 필터링", description = "사용자가 설정한 조건을 갖춘 프로젝트들을 보여줍니다.")
     public List<ProjectsDTO.ReadDefaultPage> getSearchProjects(@RequestBody ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
         return projectsService.findProjectsByFilter(projectsSearchRequest);
+    }
+
+    @DeleteMapping("/{projectId}")
+    @Operation(summary = "프로젝트 삭제", description = "프로젝트를 삭제합니다.")
+    public ResponseEntity<ResponseDTO> deleteProject(@PathVariable Integer projectId, @RequestBody UserDTO.UserIdDTO userIdDTO) {
+        ResponseDTO response = projectsService.deleteProject(projectId, userIdDTO.getUser_id());
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
 }

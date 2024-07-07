@@ -155,4 +155,20 @@ public class ProjectsService {
                 readDefaultPage -> readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)
         ).collect(Collectors.toList());
     }
+
+    public ResponseDTO deleteProject(Integer projectId, UUID userId) {
+        Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+        if (projectOpt.isPresent()) {
+            Projects project = projectOpt.get();
+            if (project.getUser_id().equals(userId)) {
+                projectsRepo.delete(project);
+                return new ResponseDTO(true, "Project deleted successfully");
+            } else {
+                return new ResponseDTO(false, "You are not authorized to delete this project");
+            }
+        } else {
+            return new ResponseDTO(false, "Project not found");
+        }
+    }
+
 }
