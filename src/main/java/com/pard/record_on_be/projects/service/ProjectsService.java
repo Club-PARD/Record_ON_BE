@@ -1,8 +1,11 @@
 package com.pard.record_on_be.projects.service;
 
+import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
+import com.pard.record_on_be.reference.dto.ReferenceDTO;
+import com.pard.record_on_be.reference.service.ReferenceService;
 import com.pard.record_on_be.s3.service.S3Service;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
@@ -13,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,10 +26,31 @@ public class ProjectsService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
+    private final ReferenceService referenceService;
 
     public String getUrl(Integer projectId) {
         return projectsRepo.findById(projectId).get().getPicture();
     }
+
+    public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadatas(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
+        // Find the project by ID
+        Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
+                .orElseThrow(() -> new NoSuchElementException("Project not found"));
+
+        // Process the project data list and fetch metadata
+        return project.getProjectDataList().stream()
+                .map(projectData -> {
+                    try {
+                        // Fetch metadata and create UrlMetadata object
+                        return referenceService.fetchMetadata(projectData.getReferences_link());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to fetch metadata", e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+
 
     @Transactional
     public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
