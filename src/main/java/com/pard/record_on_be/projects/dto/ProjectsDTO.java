@@ -17,13 +17,20 @@ public class ProjectsDTO {
         private UUID user_id;
         private String name;
         private Date start_date;
-        private Date update_date;
         private Date finish_date;
         private String description;
-        private Integer is_finished;
         private String part;
     }
 
+    @Getter
+    @Setter
+    public static class Update {
+        private String name;
+        private Date start_date;
+        private Date finish_date;
+        private String description;
+        private String part;
+    }
 
     @Getter
     @Setter

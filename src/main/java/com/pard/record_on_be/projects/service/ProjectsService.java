@@ -72,7 +72,6 @@ public class ProjectsService {
                     .finish_date(projectCreateDTO.getFinish_date())
                     .description(projectCreateDTO.getDescription())
                     .picture("")
-                    .is_finished(projectCreateDTO.getIs_finished())
                     .part(projectCreateDTO.getPart())
                     .user(user)
                     .build();
