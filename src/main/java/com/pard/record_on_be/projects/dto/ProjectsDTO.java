@@ -71,4 +71,11 @@ public class ProjectsDTO {
             this.read_default_page = read_default_page;
         }
     }
+
+    @Getter
+    @Setter
+    public static class Finish{
+        private UUID user_id;
+        private List<Integer> competency_tag_ids;
+    }
 }

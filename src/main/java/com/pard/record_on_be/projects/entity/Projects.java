@@ -6,10 +6,7 @@ import com.pard.record_on_be.experiences.entity.Experiences;
 import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Table(name = "projects")
+//@ToString(exclude = {"user", "experiencesList", "projectDataList", "competencyTagList"})
 public class Projects {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,12 +58,15 @@ public class Projects {
     private User user;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // 순환 참조 방지
     private List<Experiences> experiencesList;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore // 순환 참조 방지
     private List<ProjectData> projectDataList;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore // 순환 참조 방지
     private List<CompetencyTag> competencyTagList;
 
     public void addPicture(String picture) {
@@ -80,6 +81,12 @@ public class Projects {
     public void addProjectData(ProjectData projectData) {
         projectDataList.add(projectData);
         projectData.setProjects(this);
+    }
+
+    public void finishProject() {
+//        finish_date = new Date();
+//        finish_date.setTime(finish_date.getTime() + 24 * 60 * 60 * 1000);
+        is_finished = 1;
     }
 
     public void addCompetencyTag(CompetencyTag competencyTag) {

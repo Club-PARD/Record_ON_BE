@@ -22,7 +22,7 @@ public class CompetencyTagDTO {
 
         public Read(CompetencyTag competencyTag){
             this.id = competencyTag.getId();
-            this.name = competencyTag.getName();
+            this.name = competencyTag.getCompetencyTagName();
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.pard.record_on_be.project_data.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pard.record_on_be.projects.entity.Projects;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class ProjectData {
 
     @ManyToOne
     @JoinColumn(name = "projects_id", referencedColumnName = "id")
+    @JsonIgnore // 순환 참조 방지
     private Projects projects;
 
     public void setProjects(Projects projects) {
