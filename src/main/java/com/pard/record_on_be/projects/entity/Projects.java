@@ -68,6 +68,10 @@ public class Projects {
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompetencyTag> competencyTagList;
 
+    public void addPicture(String picture) {
+        this.picture = picture;
+    }
+
     public void addExperience(Experiences experience) {
         experiencesList.add(experience);
         experience.setProjects(this);

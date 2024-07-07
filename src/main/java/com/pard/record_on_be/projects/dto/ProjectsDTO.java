@@ -20,7 +20,6 @@ public class ProjectsDTO {
         private Date update_date;
         private Date finish_date;
         private String description;
-        private String picture;
         private Integer is_finished;
         private String part;
     }
