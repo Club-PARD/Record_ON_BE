@@ -22,6 +22,8 @@ public class S3TestController {
         return s3Service.uploadProfile(multipartFile);
     }
 
+
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingServletRequestPartException.class)
     public String handleMissingServletRequestPartException(MissingServletRequestPartException ex) {
