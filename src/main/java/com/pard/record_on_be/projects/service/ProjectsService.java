@@ -1,18 +1,15 @@
 package com.pard.record_on_be.projects.service;
 
-import com.pard.record_on_be.project_data.entity.ProjectData;
+
 import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
 import com.pard.record_on_be.competency_tag.repo.CompetencyTagRepo;
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
 import com.pard.record_on_be.stored_info.entity.StoredCompetencyTagInfo;
-import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
-import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredCompetencyTagInfoRepo;
 import com.pard.record_on_be.reference.dto.ReferenceDTO;
 import com.pard.record_on_be.reference.service.ReferenceService;
-import com.pard.record_on_be.s3.service.S3Service;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
@@ -40,7 +37,7 @@ public class ProjectsService {
         return projectsRepo.findById(projectId).get().getPicture();
     }
 
-    public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadatas(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
+    public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadata(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
         // Find the project by ID
         Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
                 .orElseThrow(() -> new NoSuchElementException("Project not found"));
