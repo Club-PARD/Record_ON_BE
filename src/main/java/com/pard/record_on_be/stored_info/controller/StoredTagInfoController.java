@@ -25,11 +25,17 @@ public class StoredTagInfoController {
         List<StoredTagInfo> storedTagInfoList = storedTagInfoService.getAllTagsWithQuestions();
         return storedTagInfoList.stream().map(storedTagInfo ->
                 new StoredTagInfoDTO.ReadStoredTag(
-                        storedTagInfo.getTagName(), storedTagInfo
-                        .getQuestionInfoList()
-                        .stream()
-                        .map(StoredQuestionInfo::getQuestionText)
-                        .collect(Collectors.toList())
+                        storedTagInfo.getTagName(),
+                        storedTagInfo.getId(),
+                        storedTagInfo
+                            .getQuestionInfoList()
+                            .stream()
+                            .map(StoredQuestionInfo::getQuestionText)
+                            .collect(Collectors.toList()),
+                        storedTagInfo
+                                .getQuestionInfoList()
+                                .stream().map(StoredQuestionInfo::getId)
+                                .collect(Collectors.toList())
                 )
         ).collect(Collectors.toList());
     }
