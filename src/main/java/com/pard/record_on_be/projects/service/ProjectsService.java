@@ -191,6 +191,29 @@ public class ProjectsService {
     }
 
     @Transactional
+    public ResponseDTO resumeProject(Integer projectId, UUID userId) {
+        Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+        if (projectOpt.isPresent()) {
+            Projects existingProject = projectOpt.get();
+            if (existingProject.getUser_id().equals(userId)) {
+                // 프로젝트 재개 처리
+                existingProject.resumeProject();
+
+                // CompetencyTag 삭제
+                existingProject.getCompetencyTagList().clear();
+
+                projectsRepo.save(existingProject);
+
+                return new ResponseDTO(true, "Project resumed successfully", existingProject);
+            } else {
+                return new ResponseDTO(false, "You are not authorized to resume this project");
+            }
+        } else {
+            return new ResponseDTO(false, "Project not found");
+        }
+    }
+
+    @Transactional
     public ResponseDTO finishProject(Integer projectId, ProjectsDTO.Finish finishDTO) {
         try {
             Projects existingProject = projectsRepo.findById(projectId)

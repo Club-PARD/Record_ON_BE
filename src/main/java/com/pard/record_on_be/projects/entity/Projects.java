@@ -89,6 +89,10 @@ public class Projects {
         is_finished = 1;
     }
 
+    public void resumeProject(){
+        is_finished = 0;
+    }
+
     public void addCompetencyTag(CompetencyTag competencyTag) {
         competencyTagList.add(competencyTag);
         competencyTag.setProjects(this);
