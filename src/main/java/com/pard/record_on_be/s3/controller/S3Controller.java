@@ -12,7 +12,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class S3TestController {
+public class S3Controller {
     private final S3Service s3Service;
     @PostMapping("/s3")
     public String uploadProfileImage(@RequestParam("image") MultipartFile multipartFile) throws IOException {
