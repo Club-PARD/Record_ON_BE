@@ -1,9 +1,15 @@
 package com.pard.record_on_be.projects.service;
 
 import com.pard.record_on_be.project_data.entity.ProjectData;
+import com.pard.record_on_be.competency_tag.entity.CompetencyTag;
+import com.pard.record_on_be.competency_tag.repo.CompetencyTagRepo;
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
+import com.pard.record_on_be.stored_info.entity.StoredCompetencyTagInfo;
+import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
+import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
+import com.pard.record_on_be.stored_info.repo.StoredCompetencyTagInfoRepo;
 import com.pard.record_on_be.reference.dto.ReferenceDTO;
 import com.pard.record_on_be.reference.service.ReferenceService;
 import com.pard.record_on_be.s3.service.S3Service;
@@ -26,6 +32,8 @@ public class ProjectsService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
+    private final CompetencyTagRepo competencyTagRepo;
+    private final StoredCompetencyTagInfoRepo storedCompetencyTagInfoRepo;
     private final ReferenceService referenceService;
 
     public String getUrl(Integer projectId) {
@@ -124,7 +132,7 @@ public class ProjectsService {
         List<String> projectsTagName = new ArrayList<>();
         projects.getCompetencyTagList().forEach(
                 competencyTag -> {
-                    projectsTagName.add(competencyTag.getName());
+                    projectsTagName.add(competencyTag.getCompetencyTagName());
         });
         return projectsTagName;
     }
@@ -183,6 +191,50 @@ public class ProjectsService {
         return readDefaultPageList.stream().filter(
                 readDefaultPage -> readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)
         ).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ResponseDTO finishProject(Integer projectId, ProjectsDTO.Finish finishDTO) {
+        try {
+            Projects existingProject = projectsRepo.findById(projectId)
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+
+            if (existingProject.getUser_id().equals(finishDTO.getUser_id())) {
+
+                // 프로젝트 완료 처리
+                existingProject.finishProject();
+
+                // CompetencyTag 처리
+                List<CompetencyTag> newCompetencyTags = finishDTO.getCompetency_tag_ids().stream()
+                        .map(competencyTagId -> {
+                            StoredCompetencyTagInfo storedCompetencyTagInfo = storedCompetencyTagInfoRepo.findById(competencyTagId)
+                                    .orElseThrow(() -> new NoSuchElementException("CompetencyTag with ID " + competencyTagId + " not found"));
+
+                            return CompetencyTag.builder()
+                                    .storedCompetencyTagId(storedCompetencyTagInfo.getId())
+                                    .competencyTagName(storedCompetencyTagInfo.getCompetencyTagName())
+                                    .projects(existingProject)
+                                    .build();
+                        })
+                        .toList();
+
+                // 기존 CompetencyTag 삭제
+                existingProject.getCompetencyTagList().clear();
+                projectsRepo.save(existingProject);
+
+                // 새 CompetencyTag 추가
+                newCompetencyTags.forEach(existingProject::addCompetencyTag);
+                projectsRepo.save(existingProject);
+
+                return new ResponseDTO(true, "Project finished successfully", existingProject);
+            } else {
+                return new ResponseDTO(false, "You are not authorized to finish this project");
+            }
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while finishing the project: " + e.getMessage());
+        }
     }
 
     public ResponseDTO deleteProject(Integer projectId, UUID userId) {

@@ -42,6 +42,13 @@ public class ProjectsController {
         return projectsService.findProjectsByFilter(projectsSearchRequest);
     }
 
+    @PutMapping("/finish/{project_id}")
+    @Operation(summary = "프로젝트 완료", description = "프로젝트를 완료합니다.")
+    public ResponseEntity<ResponseDTO> finishProject(@PathVariable Integer project_id, @RequestBody ProjectsDTO.Finish finishDTO) {
+        ResponseDTO response = projectsService.finishProject(project_id, finishDTO);
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
+    }
+
     @DeleteMapping("/{projectId}")
     @Operation(summary = "프로젝트 삭제", description = "프로젝트를 삭제합니다.")
     public ResponseEntity<ResponseDTO> deleteProject(@PathVariable Integer projectId, @RequestBody UserDTO.UserIdDTO userIdDTO) {
