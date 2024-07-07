@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class ReferenceDTO {
 
+
     @Getter
     @Setter
     public static class UrlCollectRequest {
