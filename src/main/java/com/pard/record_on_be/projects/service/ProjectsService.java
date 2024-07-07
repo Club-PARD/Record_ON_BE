@@ -3,6 +3,7 @@ package com.pard.record_on_be.projects.service;
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
+import com.pard.record_on_be.s3.service.S3Service;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProjectsService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
 
+    private final S3Service s3Service;
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
 
@@ -37,7 +39,7 @@ public class ProjectsService {
                     .update_date(new Date()) // 현재 날짜로 업데이트 날짜 설정
                     .finish_date(projectCreateDTO.getFinish_date())
                     .description(projectCreateDTO.getDescription())
-                    .picture(projectCreateDTO.getPicture())
+                    .picture(s3Service.uploadProfile(projectCreateDTO.getPicture()))
                     .is_finished(projectCreateDTO.getIs_finished())
                     .part(projectCreateDTO.getPart())
                     .user(user)
