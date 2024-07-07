@@ -2,6 +2,7 @@ package com.pard.record_on_be.s3.controller;
 
 import com.pard.record_on_be.projects.service.ProjectsService;
 import com.pard.record_on_be.s3.service.S3Service;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,10 @@ import java.io.IOException;
 public class S3Controller {
     private final S3Service s3Service;
     private final ProjectsService projectsService;
+
+
     @PostMapping("/s3/{projects_id}")
+    @Operation(summary = "프로젝트 이미지 삽입하기", description = "이미지를 formdata로 보내주고, 올라간 이미지의 url을 받습니다.")
     public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId, @RequestParam("image") MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
@@ -27,6 +31,7 @@ public class S3Controller {
         return url;
     }
 
+    @Operation(summary = "프로젝트 이미지 url 가져오기", description = "이미지를 가져오고자 하는 프로젝트의 id를 입력하면 해당 프로젝트의 이미지 url을 받습니다.")
     @GetMapping("/s3/{projects_id}")
     public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId) throws IOException {
         return projectsService.getUrl(projectsId);
