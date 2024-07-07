@@ -47,16 +47,25 @@ public class S3Uploader {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
+//    private Optional<File> convert(MultipartFile file) throws IOException {
+//        File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
+//        if (convertFile.createNewFile()) {
+//            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+//                fos.write(file.getBytes());
+//            }
+//            return Optional.of(convertFile);
+//        }
+//        return Optional.empty();
+//    }
+
     private Optional<File> convert(MultipartFile file) throws IOException {
-        File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-        if (convertFile.createNewFile()) {
-            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-                fos.write(file.getBytes());
-            }
-            return Optional.of(convertFile);
+        File convertFile = new File(file.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+            fos.write(file.getBytes());
         }
-        return Optional.empty();
+        return Optional.of(convertFile);
     }
+
 
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
