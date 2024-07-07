@@ -3,6 +3,7 @@ package com.pard.record_on_be.projects.controller;
 
 import com.pard.record_on_be.projects.dto.ProjectsDTO;
 import com.pard.record_on_be.projects.service.ProjectsService;
+import com.pard.record_on_be.reference.dto.ReferenceDTO;
 import com.pard.record_on_be.user.dto.UserDTO;
 import com.pard.record_on_be.util.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +47,11 @@ public class ProjectsController {
     public ResponseEntity<ResponseDTO> deleteProject(@PathVariable Integer projectId, @RequestBody UserDTO.UserIdDTO userIdDTO) {
         ResponseDTO response = projectsService.deleteProject(projectId, userIdDTO.getUser_id());
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @PostMapping("/reference")
+    @Operation(summary = "프로젝트에 저장된 reference link를 전부 가져옵니다.", description = "경험 생성하며 저장한 관련 자료 링크들을 전부 모아 가져옵니다.")
+    public List<ReferenceDTO.UrlMetadata> getReferences(@RequestBody ReferenceDTO.UrlCollectRequest request) {
+        return projectsService.getProjectUrlMetadatas(request);
     }
 }
