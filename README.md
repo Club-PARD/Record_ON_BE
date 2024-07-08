@@ -266,5 +266,3 @@
 <br>
 <!-- Footer banner -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:5eb592,10:93d9bd,30:5eb592,75:2f8f67,100:136342&height=40&section=footer&text=&fontSize=0" width="100%"/>
-
-</div>
