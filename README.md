@@ -1,4 +1,5 @@
 <div align="center">
+<a id="readme-top"></a>
 <!-- Header banner -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:196E4B,10:2f8f67,30:5eb592,75:93d9bd,100:2f8f67&height=100&section=header&text=&fontSize=0" width="100%"/>
 <br><br>
@@ -89,24 +90,12 @@
 
 ### 경험을 상세하게 기록하기 어려운 이들을 위한 ”경험 기록 서비스, RECORD ON”
 
-- 🧐 많은 대학생들은 **자신의 경험을 기록하는 방법을 몰라** 기억에 의존하거나 간단하게만 기록합니다.    
-- 😔 이로 인해, 취업 준비 단계에서 자기소개서 작성할 때 **필요한 내용을 충분히 담지 못하는 어려움**을 겪습니다.
+> - 🧐 많은 대학생들은 **자신의 경험을 기록하는 방법을 몰라** 기억에 의존하거나 간단하게만 기록합니다.    
+> - 😔 이로 인해, 취업 준비 단계에서 자기소개서 작성할 때 **필요한 내용을 충분히 담지 못하는 어려움**을 겪습니다.
 
-💡 이러한 문제를 해결하기 위해,
-1) 경험을 상세하게 기록할 수 있도록 도와주고 
-2) 자기소개서 작성에 필요한 내용을 효과적으로 추출할 수 있는 서비스를 제공합니다.
-
-</aside>
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+### 💡 이러한 문제를 해결하기 위해,
+> 1) 경험을 상세하게 기록할 수 있도록 도와주고 
+> 2) 자기소개서 작성에 필요한 내용을 효과적으로 추출할 수 있는 서비스를 제공합니다.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
