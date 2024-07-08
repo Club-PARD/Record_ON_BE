@@ -40,6 +40,7 @@ gradle-app.setting
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/git_toolbox_blame.xml
 
 # AWS User-specific
 .idea/**/aws.xml
