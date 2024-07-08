@@ -12,6 +12,7 @@ import java.util.List;
 public class StoredTagInfoService {
     private final StoredTagInfoRepo storedTagInfoRepo;
 
+    // 모든 저장되어 있는 태그와 질문을 dto로 만들어 보내줍니다.
     public List<StoredTagInfo> getAllTagsWithQuestions(){
         return storedTagInfoRepo.findAll();
     }
