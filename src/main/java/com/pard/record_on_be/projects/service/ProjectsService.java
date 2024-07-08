@@ -53,7 +53,6 @@ public class ProjectsService {
                     .update_date(new Date()) // 현재 날짜로 업데이트 날짜 설정
                     .finish_date(projectCreateDTO.getFinish_date())
                     .description(projectCreateDTO.getDescription())
-                    .picture("")
                     .part(projectCreateDTO.getPart())
                     .user(user)
                     .build();
