@@ -171,7 +171,7 @@
 
 ## ERD
 
-<img src="./asset/images/erd.png">
+<img src="asset/images/erd2.png">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
