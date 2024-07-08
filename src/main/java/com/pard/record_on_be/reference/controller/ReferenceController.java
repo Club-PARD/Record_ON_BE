@@ -14,7 +14,7 @@ import java.io.IOException;
 public class ReferenceController {
     private final ReferenceService referenceService;
 
-    @PostMapping("/reference/get")
+    @PostMapping("/reference")
     @Operation(summary = "URL을 메타 데이터로 변환", description = "하나의 링크를 보내주고, 해당 링크에 대한 사이트 이름과, 대표 이미지를 받습니다.")
     public ReferenceDTO.UrlMetadata getMetadata(@RequestBody ReferenceDTO.UrlRequest urlRequest) throws IOException {
         return referenceService.fetchMetadata(urlRequest.getUrl());
