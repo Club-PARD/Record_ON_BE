@@ -26,8 +26,14 @@ public class S3Controller {
         if (multipartFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
+
+        System.out.println("Received file: " + multipartFile.getOriginalFilename());
+        System.out.println("File content type: " + multipartFile.getContentType());
+
         // projects_id와 image를 이용해 로직을 처리하는 부분
         String url = s3Service.uploadProfile(multipartFile);
+        System.out.println("Url name : " + url);
+
         s3Service.saveS3Url(projectsId, url);
         return url;
     }
