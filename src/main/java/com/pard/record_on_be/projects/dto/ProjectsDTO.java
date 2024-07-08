@@ -24,20 +24,6 @@ public class ProjectsDTO {
 
     @Getter
     @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Update {
-        private UUID user_id;
-        private String name;
-        private Date start_date;
-        private Date finish_date;
-        private String description;
-        private Integer is_finished;
-        private String part;
-    }
-
-    @Getter
-    @Setter
     public static class ProjectsSearchRequest {
         private UUID user_id;
         private List<String> competency_tag_name;
