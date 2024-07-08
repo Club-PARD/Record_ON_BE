@@ -246,20 +246,15 @@
 <!-- CONTACT -->
 ## Contact
 
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 |                          🐣 조예은                           |                          🐭 박예람                           |                          🦉 김기영                           |                          🐱 전소명                           |
 |:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
 |                            PM                             |                            기획                             |                            백엔드                            |                            백엔드                            |
-| ![yeeun.jpeg](asset%2Fimages%2Fprofile%2Fyeeun.jpeg?v=4)  |  ![yeram.jpg](asset%2Fimages%2Fprofile%2Fyeram.jpg?v=4)   | ![](https://avatars.githubusercontent.com/u/59433441?v=4) | ![](https://avatars.githubusercontent.com/u/57715601?v=4) |
+| <img src="asset/images/profile/yeeun.jpeg" style="width: 150px; height: 150px; object-fit: cover;">  |  <img src="asset/images/profile/yeram.jpeg" style="width: 150px; height: 150px; object-fit: cover;">   | <img src="asset/images/profile/giyoung.png" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/somyung.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> |
 |                          🐰 이윤서                           |                          🐹 김예은                           |                          🐨 박주영                           |                          🐶 이민규                           |
 |                            디자인                            |                           프론트엔드                           |                           프론트엔드                           |                           프론트엔드                           |
-| ![](https://avatars.githubusercontent.com/u/35277854?v=4) | ![](https://avatars.githubusercontent.com/u/55571682?v=4) | ![](https://avatars.githubusercontent.com/u/59433441?v=4) | ![](https://avatars.githubusercontent.com/u/57715601?v=4) |
+| <img src="asset/images/profile/yunseo.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/yepal.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/juyoung.png" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/mingyu.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
