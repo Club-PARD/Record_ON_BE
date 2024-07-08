@@ -32,4 +32,18 @@ public class ReferenceDTO {
             this.imageUrl = imageUrl;
         }
     }
+
+    @Getter
+    @Setter
+    public static class MetadataWithUrl {
+        private String url;
+        private String title;
+        private String imageUrl;
+
+        public MetadataWithUrl(String url, String title, String imageUrl) {
+            this.url = url;
+            this.title = title;
+            this.imageUrl = imageUrl;
+        }
+    }
 }
