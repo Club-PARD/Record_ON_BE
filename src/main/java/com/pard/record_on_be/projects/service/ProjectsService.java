@@ -27,25 +27,27 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProjectsService {
-    private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
     private final ProjectsRepo projectsRepo;
     private final UserRepo userRepo;
-    private final CompetencyTagRepo competencyTagRepo;
     private final StoredCompetencyTagInfoRepo storedCompetencyTagInfoRepo;
     private final ReferenceService referenceService;
 
+    // 프로젝트 생성
     @Transactional
     public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
         try {
+
             // 필수 필드 및 날짜 검증
             String validationError = validateProjectCreateDTO(projectCreateDTO);
             if (validationError != null) {
                 return new ResponseDTO(false, validationError);
             }
-                // 없는 유저이면 예외 발생
+
+            // 없는 유저이면 예외 발생
             User user = userRepo.findById(projectCreateDTO.getUser_id())
                     .orElseThrow(() -> new NoSuchElementException("User with ID " + projectCreateDTO.getUser_id() + " not found"));
 
+            // 프로젝트 하나 생성
             Projects project = Projects.builder()
                     .user_id(projectCreateDTO.getUser_id())
                     .name(projectCreateDTO.getName())
@@ -57,6 +59,7 @@ public class ProjectsService {
                     .user(user)
                     .build();
 
+            // 프로젝트 저장
             project = projectsRepo.save(project);
 
             return new ResponseDTO(true, "Project created successfully", project);
@@ -77,6 +80,7 @@ public class ProjectsService {
         );
     }
 
+    // 프로젝트 수정시 필요한 간략한 정보 리턴
     public ResponseDTO compactReadById(Integer projectId) {
         try {
             Projects existingProject = projectsRepo.findById(projectId)
@@ -123,9 +127,11 @@ public class ProjectsService {
         return filteredList;
     }
 
+    // 프로젝트 수정
     @Transactional
     public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Create projectCreateDTO, UUID userId) {
         try {
+            // 대상 프로젝트의 존재여부 확인
             Projects existingProject = projectsRepo.findById(projectId)
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
 
@@ -135,6 +141,7 @@ public class ProjectsService {
                 return new ResponseDTO(false, validationError);
             }
 
+            // user id 검증 후 기존 프로젝트의 정보 수정 ( 삼항연산자 지워도 정상 작동함 )
             if (existingProject.getUser_id().equals(userId)) {
                 Projects updatedProject = Projects.builder()
                         .id(existingProject.getId())
@@ -165,10 +172,14 @@ public class ProjectsService {
         }
     }
 
+    // 프로젝트 삭제
     public ResponseDTO deleteProject(Integer projectId, UUID userId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+
+        // 프로젝트 존재시 삭제 진행
         if (projectOpt.isPresent()) {
             Projects project = projectOpt.get();
+            // user id 검증
             if (project.getUser_id().equals(userId)) {
                 projectsRepo.delete(project);
                 return new ResponseDTO(true, "Project deleted successfully");
@@ -180,14 +191,16 @@ public class ProjectsService {
         }
     }
 
+    // 프로젝트 완료 처리
     @Transactional
     public ResponseDTO finishProject(Integer projectId, ProjectsDTO.Finish finishDTO) {
         try {
+            // 대상 프로젝트의 존재여부 확인
             Projects existingProject = projectsRepo.findById(projectId)
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
 
+            // user id 검증
             if (existingProject.getUser_id().equals(finishDTO.getUser_id())) {
-
                 // 프로젝트 완료 처리
                 existingProject.finishProject();
 
@@ -224,9 +237,12 @@ public class ProjectsService {
         }
     }
 
+    // 프로젝트 재개 처리
     @Transactional
     public ResponseDTO resumeProject(Integer projectId, UUID userId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+
+        // 프로젝트 존재시 재개 처리 진행
         if (projectOpt.isPresent()) {
             Projects existingProject = projectOpt.get();
             if (existingProject.getUser_id().equals(userId)) {
@@ -247,6 +263,7 @@ public class ProjectsService {
         }
     }
 
+    // CreateDTO 에 대한 데이터 검증 메서드
     private String validateProjectCreateDTO(ProjectsDTO.Create projectCreateDTO) {
         if (projectCreateDTO.getName() == null || projectCreateDTO.getName().isEmpty()) {
             return "Project name is required";
@@ -266,8 +283,11 @@ public class ProjectsService {
         return null;
     }
 
+    // 프로젝트의 대표 사진 URL 리턴
     public ResponseDTO getUrl(Integer projectId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+
+        // 대상 프로젝트의 존재여부 확인
         if (projectOpt.isPresent()) {
             String picture = projectOpt.get().getPicture();
             return  picture != null
@@ -278,6 +298,7 @@ public class ProjectsService {
         }
     }
 
+    // URL 의 메타데이터 리턴
     public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadata(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
         // Find the project by ID
         Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
@@ -296,7 +317,7 @@ public class ProjectsService {
                 .toList();
     }
 
-    // UUID를 넘겨주면 해당 UUID가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
+    // UUID 를 넘겨주면 해당 UUID 가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByUUID(UUID userId) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
         try {
@@ -326,7 +347,7 @@ public class ProjectsService {
         return readDefaultPageList;
     }
 
-    //  competency에서 tag id만 뽑아와서 list로 만들어주기
+    //  competency 에서 tag id만 뽑아와서 list 로 만들어주기
     public List<Integer> findProjectsTagId(Projects projects) {
         List<Integer> projectsTagId = new ArrayList<>();
         projects.getCompetencyTagList().forEach(
@@ -334,7 +355,7 @@ public class ProjectsService {
         return projectsTagId;
     }
 
-    // competency에서 tag 이름만 뽑아와서 list로 만들어주기
+    // competency 에서 tag 이름만 뽑아와서 list 로 만들어주기
     public List<String> findProjectsTagName(Projects projects) {
         List<String> projectsTagName = new ArrayList<>();
         projects.getCompetencyTagList().forEach(
@@ -347,10 +368,10 @@ public class ProjectsService {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
 
         try {
-            // user의 projects 전체 탐색
+            // user 의 projects 전체 탐색
             readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
 
-            // 필수요소인 isfinished로 1차 필터링
+            // 필수요소인 isfinished 로 1차 필터링
             readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
 
             // 날짜 선택으로 2차 필터링
@@ -377,6 +398,7 @@ public class ProjectsService {
 
         return readDefaultPageList;
     }
+
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
         if (isFinished == null || isFinished == 2) {
             return readDefaultPageList;
@@ -392,7 +414,7 @@ public class ProjectsService {
         return filteredList;
     }
 
-    // Date를 기준으로 필터링 해서 보내주기
+    // Date 를 기준으로 필터링 해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
         try {
             if (start_date == null && end_date == null) {
