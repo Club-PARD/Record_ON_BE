@@ -26,7 +26,7 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-
+    // multipartFile을 File 형태로 변환하여 반환
     public String upload(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile).orElseThrow(() -> new IllegalArgumentException("파일 변환 실패"));
         return upload(uploadFile, dirName);
@@ -47,7 +47,7 @@ public class S3Uploader {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
-
+    // Multipart 형식의 파일을 변환하여 optional로 존재하는지 확인하고 반환
     private Optional<File> convert(MultipartFile file) throws IOException {
         File convertFile = new File(file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convertFile)) {
@@ -56,7 +56,7 @@ public class S3Uploader {
         return Optional.of(convertFile);
     }
 
-
+    // 이미 파일이 있는 경우 파일을 삭제하고 이미지를 저장
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
             log.info("파일이 삭제되었습니다.");
