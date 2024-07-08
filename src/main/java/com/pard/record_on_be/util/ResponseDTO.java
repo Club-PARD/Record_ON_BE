@@ -9,7 +9,7 @@ public class ResponseDTO {
     @Getter
     private boolean success;
     private String message;
-    private Object object;
+    private Object response_object;
 
 
     public ResponseDTO(boolean success, String message) {
@@ -17,9 +17,9 @@ public class ResponseDTO {
         this.message = message;
     }
 
-    public ResponseDTO(boolean success, String message, Object object) {
+    public ResponseDTO(boolean success, String message, Object response_object) {
         this.success = success;
         this.message = message;
-        this.object = object;
+        this.response_object = response_object;
     }
 }
