@@ -78,6 +78,27 @@ public class ProjectsService {
         );
     }
 
+    public ResponseDTO compactReadById(Integer projectId) {
+        try {
+            Projects existingProject = projectsRepo.findById(projectId)
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+            ProjectsDTO.CompactRead compactRead = ProjectsDTO.CompactRead.builder()
+                    .project_name(existingProject.getName())
+                    .description(existingProject.getDescription())
+                    .part(existingProject.getPart())
+                    .start_date(existingProject.getStart_date())
+                    .finish_date(existingProject.getFinish_date())
+                    .project_image(existingProject.getPicture())
+                    .build();
+
+                return new ResponseDTO(true, "Project compact read successfully", compactRead);
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while updating the project: " + e.getMessage());
+        }
+    }
+
     // 태그들을 기준으로 필터링해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByCompetencyTags(List<String> competencyTagNameList, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
         List<ProjectsDTO.ReadDefaultPage> filteredList = new ArrayList<>();
