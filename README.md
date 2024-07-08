@@ -7,14 +7,13 @@
 
 
 <!-- Title Typing Effect -->
-<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Protest+Riot&pause=1000&color=FFD369&size=40&center=true&vCenter=true&random=false&width=435&lines=Hello!+I'm+Giyoung+Kim" alt="Typing SVG" /></a>
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Wittgenstein&size=40&pause=1000&color=7DDC7A&center=true&random=false&height=80&lines=We+are+Record+On!" alt="Typing SVG" /></a>
 <br>
 <div align="center">  
 </div>
 </div>
 
 
-</details>
 <br><br>
 <div align="center">
 
@@ -45,6 +44,8 @@
 <!-- Footer banner -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:80AF81,10:bae4bd,30:80AF81,75:508D4E,100:1A5319&height=40&section=footer&text=&fontSize=0" width="100%"/>
 </div>
+
+
 
 
 # Pard Long heckerton, Team Record_on
