@@ -58,6 +58,18 @@ public class ProjectsDTO {
 
     @Getter
     @Setter
+    @Builder
+    public static class CompactRead{
+        private String project_name;
+        private String description;
+        private String part;
+        private Date start_date;
+        private Date finish_date;
+        private String project_image;
+    }
+
+    @Getter
+    @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReadAll {  // read가 eneity에서 읽어와서 dto로 보내주기
         private String user_name;
