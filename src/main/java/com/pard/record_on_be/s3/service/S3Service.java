@@ -19,6 +19,8 @@ public class S3Service {
     private final ProjectsRepo projectsRepo;
     private final S3Uploader s3Uploader;
 
+
+    // MultipartFile 을 받으면 업로더로 url 형태로 가공 후 전달
     public String uploadProfile(MultipartFile multipartFile) throws IOException {
         String url = s3Uploader.upload(multipartFile, "static/profile");
         System.out.println(url);
@@ -26,6 +28,7 @@ public class S3Service {
     }
 
 
+    // 프로젝트 아이디와 url을 받아와서 response로 보내줄 dto로 변환시켜서 return 시켜준
     @Transactional
     public ResponseDTO saveS3Url(Integer projectId, String url) {
         try {

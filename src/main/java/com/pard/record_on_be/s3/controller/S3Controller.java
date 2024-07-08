@@ -23,10 +23,12 @@ public class S3Controller {
     @PostMapping("/s3/{projects_id}")
     @Operation(summary = "프로젝트 이미지 삽입하기", description = "이미지를 formdata로 보내주고, 올라간 이미지의 url을 받습니다.")
     public String uploadProfileImage(@PathVariable("projects_id") Integer projectsId, @RequestParam("image") MultipartFile multipartFile) throws IOException {
+        // 이미지를 보내지 않을 경우 예외처리
         if (multipartFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
 
+        // 가져온 이미지의 이름과 타입을 log에 찍어줍니다.
         System.out.println("Received file: " + multipartFile.getOriginalFilename());
         System.out.println("File content type: " + multipartFile.getContentType());
 
@@ -34,6 +36,7 @@ public class S3Controller {
         String url = s3Service.uploadProfile(multipartFile);
         System.out.println("Url name : " + url);
 
+        // 서비스에 url과 id를 저장해줍니다.
         s3Service.saveS3Url(projectsId, url);
         return url;
     }
