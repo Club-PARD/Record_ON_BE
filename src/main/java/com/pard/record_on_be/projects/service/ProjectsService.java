@@ -13,6 +13,7 @@ import com.pard.record_on_be.reference.service.ReferenceService;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -79,12 +80,27 @@ public class ProjectsService {
 
     // 태그들을 기준으로 필터링해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByCompetencyTags(List<String> competencyTagNameList, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if (competencyTagNameList == null || competencyTagNameList.isEmpty()) {
-            return readDefaultPageList;
+        List<ProjectsDTO.ReadDefaultPage> filteredList = new ArrayList<>();
+
+        try {
+            if (competencyTagNameList == null || competencyTagNameList.isEmpty()) {
+                return readDefaultPageList;
+            }
+
+            for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
+                if (readDefaultPage != null && readDefaultPage.getCompetency_tag_name() != null &&
+                        readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)) {
+                    filteredList.add(readDefaultPage);
+                }
+            }
+        } catch (Exception e) {
+            // 예외 처리: 예상치 못한 예외가 발생할 경우
+            System.err.println("Error while filtering projects by competency tags: " + e.getMessage());
+            // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수 있음
+            // 여기서는 빈 목록 반환 예시
+            return new ArrayList<>();
         }
-        return readDefaultPageList.stream().filter(
-                readDefaultPage -> readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)
-        ).collect(Collectors.toList());
+        return filteredList;
     }
 
     @Transactional
@@ -263,13 +279,30 @@ public class ProjectsService {
     // UUID를 넘겨주면 해당 UUID가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByUUID(UUID userId) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
-        User user = userRepo.findById(userId).get();
-        user.getProjects().forEach(project -> readDefaultPageList.add(
-                new ProjectsDTO.ReadDefaultPage(
-                        user,
-                        project,
-                        findProjectsTagId(project),
-                        findProjectsTagName(project))));
+        try {
+            Optional<User> optionalUser = userRepo.findById(userId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.getProjects().forEach(project -> readDefaultPageList.add(
+                        new ProjectsDTO.ReadDefaultPage(
+                                user,
+                                project,
+                                findProjectsTagId(project),
+                                findProjectsTagName(project))));
+            } else {
+                // Handle the case where user with given userId is not found
+                // For example, throw an exception or log a message
+                throw new EntityNotFoundException("User with id " + userId + " not found");
+            }
+        } catch (NoSuchElementException e) {
+            // Handle case where Optional.get() throws NoSuchElementException
+            // For example, throw a more specific exception or log a message
+            throw new EntityNotFoundException("User with id " + userId + " not found", e);
+        } catch (Exception e) {
+            // Handle any other unexpected exceptions
+            // For example, log the exception and throw a custom exception
+            throw new RuntimeException("Error while finding projects for user with id " + userId, e);
+        }
         return readDefaultPageList;
     }
 
@@ -291,45 +324,77 @@ public class ProjectsService {
 
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
-        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
-        // user의 projects 전체 탐색
-        readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
+        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
 
-        // 필수요소인 isfinished로 1차 필터링
-        readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
+        try {
+            // user의 projects 전체 탐색
+            readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
 
-        // 날짜 선택으로 2차 필터링
-        readDefaultPageList = findProjectsShortByDate(projectsSearchRequest.getStart_date(), projectsSearchRequest.getFinish_date(), readDefaultPageList);
+            // 필수요소인 isfinished로 1차 필터링
+            readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
 
-        // 태그 선택으로 3차 필터링
-        readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
+            // 날짜 선택으로 2차 필터링
+            readDefaultPageList = findProjectsShortByDate(projectsSearchRequest.getStart_date(), projectsSearchRequest.getFinish_date(), readDefaultPageList);
+
+            // 태그 선택으로 3차 필터링
+            readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
+        } catch (EntityNotFoundException e) {
+            // 예외 처리: 사용자가 존재하지 않거나, 필터링에 필요한 정보가 부족할 경우
+            // 예를 들어, 사용자 ID가 잘못된 경우 등
+            // 에러 메시지 출력 또는 로깅
+            System.err.println("Error while filtering projects: " + e.getMessage());
+            // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
+            // 여기서는 빈 목록 반환 예시
+            return Collections.emptyList();
+        } catch (Exception e) {
+            // 예외 처리: 그 외 예상치 못한 예외 상황 처리
+            // 예를 들어, 데이터베이스 연결 문제 등
+            System.err.println("Unexpected error while filtering projects: " + e.getMessage());
+            // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
+            // 여기서는 빈 목록 반환 예시
+            return Collections.emptyList();
+        }
 
         return readDefaultPageList;
     }
-
-    // 0 > 종료 안된 프로젝트 1 > 종료된 프로젝트 2 > 둘 다
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if(isFinished == 2){ return readDefaultPageList;}
-        return readDefaultPageList.stream().filter(
-                readDefaultPage -> readDefaultPage.getIs_finished().equals(isFinished)
-        ).toList();
+        if (isFinished == null || isFinished == 2) {
+            return readDefaultPageList;
+        }
+
+        List<ProjectsDTO.ReadDefaultPage> filteredList = new ArrayList<>();
+        for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
+            if (readDefaultPage != null && readDefaultPage.getIs_finished() != null && readDefaultPage.getIs_finished().equals(isFinished)) {
+                filteredList.add(readDefaultPage);
+            }
+        }
+
+        return filteredList;
     }
 
     // Date를 기준으로 필터링 해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if(start_date == null && end_date == null){ return readDefaultPageList; }
-        else if(end_date == null){
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
-            ).toList();
-        } else if (start_date == null) {
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
-            ).toList();
-        } else {
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
-            ).toList();
+        try {
+            if (start_date == null && end_date == null) {
+                return readDefaultPageList;
+            } else if (end_date == null) {
+                return readDefaultPageList.stream().filter(
+                        readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
+                ).toList();
+            } else if (start_date == null) {
+                return readDefaultPageList.stream().filter(
+                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
+                ).toList();
+            } else {
+                return readDefaultPageList.stream().filter(
+                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
+                ).toList();
+            }
+        } catch (Exception e) {
+            System.err.println("Error while filtering projects by date: " + e.getMessage());
+            // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수 있음
+            // 여기서는 빈 목록 반환 예시
+            return new ArrayList<>();
         }
     }
 }
