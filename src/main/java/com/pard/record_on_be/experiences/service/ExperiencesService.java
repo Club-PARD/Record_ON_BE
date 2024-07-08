@@ -31,7 +31,6 @@ public class ExperiencesService {
     private final StoredTagInfoRepo storedTagInfoRepo;
     private final ProjectDataRepo projectDataRepo;
 
-
     public ExperiencesService(ExperiencesRepo experiencesRepo, StoredQuestionInfoRepo storedQuestionInfoRepo, AnswerHistoriesRepo answerHistoriesRepo, ProjectsRepo projectsRepo, StoredTagInfoRepo storedTagInfoRepo, ProjectDataRepo projectDataRepo) {
         this.experiencesRepo = experiencesRepo;
         this.storedQuestionInfoRepo = storedQuestionInfoRepo;
@@ -40,7 +39,6 @@ public class ExperiencesService {
         this.storedTagInfoRepo = storedTagInfoRepo;
         this.projectDataRepo = projectDataRepo;
     }
-
 
     @Transactional
     public ResponseDTO createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
@@ -98,7 +96,7 @@ public class ExperiencesService {
 
             List<String> referenceLinks = projectDataRepo.findAllByExperiencesId(experienceId).stream()
                     .map(ProjectData::getReferences_link)
-                    .collect(Collectors.toList());
+                    .toList();
 
             ExperiencesDTO.ExperienceDetailsResponse response = new ExperiencesDTO.ExperienceDetailsResponse(
                     experience.getTitle(),
@@ -134,7 +132,6 @@ public class ExperiencesService {
         return experienceSearchResponseList;
     }
 
-    //
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
         // 1차 필터링: answerHistories에서 text를 포함하는 experiences 찾기
         List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
@@ -151,7 +148,6 @@ public class ExperiencesService {
         Set<Integer> filteredExperienceIds = expFilteredList.stream()
                 .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
                 .collect(Collectors.toSet());
-
 
         // 2차 필터링: 제목에서 필터링
         experienceSearchResponseList.stream().filter(

@@ -58,7 +58,7 @@ public class ProjectsController {
 
     @PutMapping("/{projectId}")
     @Operation(summary = "프로젝트 수정", description = "프로젝트를 수정합니다.")
-    public ResponseEntity<ResponseDTO> updateProject(@PathVariable Integer projectId, @RequestBody ProjectsDTO.Update projectUpdateDTO) {
+    public ResponseEntity<ResponseDTO> updateProject(@PathVariable Integer projectId, @RequestBody ProjectsDTO.Create projectUpdateDTO) {
         ResponseDTO response = projectsService.updateProject(projectId, projectUpdateDTO, projectUpdateDTO.getUser_id());
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }

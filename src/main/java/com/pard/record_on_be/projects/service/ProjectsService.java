@@ -33,34 +33,15 @@ public class ProjectsService {
     private final StoredCompetencyTagInfoRepo storedCompetencyTagInfoRepo;
     private final ReferenceService referenceService;
 
-    public String getUrl(Integer projectId) {
-        return projectsRepo.findById(projectId).get().getPicture();
-    }
-
-    public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadata(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
-        // Find the project by ID
-        Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
-                .orElseThrow(() -> new NoSuchElementException("Project not found"));
-
-        // Process the project data list and fetch metadata
-        return project.getProjectDataList().stream()
-                .map(projectData -> {
-                    try {
-                        // Fetch metadata and create UrlMetadata object
-                        return referenceService.fetchMetadata(projectData.getReferences_link());
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to fetch metadata", e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-
-
     @Transactional
     public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
         try {
-            // 없는 유저이면 예외 발생
+            // 필수 필드 및 날짜 검증
+            String validationError = validateProjectCreateDTO(projectCreateDTO);
+            if (validationError != null) {
+                return new ResponseDTO(false, validationError);
+            }
+                // 없는 유저이면 예외 발생
             User user = userRepo.findById(projectCreateDTO.getUser_id())
                     .orElseThrow(() -> new NoSuchElementException("User with ID " + projectCreateDTO.getUser_id() + " not found"));
 
@@ -86,8 +67,6 @@ public class ProjectsService {
         }
     }
 
-
-
     // 사용자의 모든 project를 필요한 내용만 뽑아서 보내주기 위해 dto 만들어서 return 해주기
     public ProjectsDTO.ReadAll findAll(UUID userId) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
@@ -96,87 +75,6 @@ public class ProjectsService {
                 userRepo.findById(userId).get().getName(),
                 readDefaultPageList
         );
-    }
-
-    // UUID를 넘겨주면 해당 UUID가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByUUID(UUID userId) {
-        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
-        User user = userRepo.findById(userId).get();
-        user.getProjects().forEach(project -> {
-            readDefaultPageList.add(
-                    new ProjectsDTO.ReadDefaultPage(
-                            user,
-                            project,
-                            findProjectsTagId(project),
-                            findProjectsTagName(project)));
-        });
-        return readDefaultPageList;
-    }
-
-    //  competency에서 tag id만 뽑아와서 list로 만들어주기
-    public List<Integer> findProjectsTagId(Projects projects) {
-        List<Integer> projectsTagId = new ArrayList<>();
-        projects.getCompetencyTagList().forEach(
-                competencyTag -> {
-                    projectsTagId.add(competencyTag.getId());
-        });
-        return projectsTagId;
-    }
-
-    // competency에서 tag 이름만 뽑아와서 list로 만들어주기
-    public List<String> findProjectsTagName(Projects projects) {
-        List<String> projectsTagName = new ArrayList<>();
-        projects.getCompetencyTagList().forEach(
-                competencyTag -> {
-                    projectsTagName.add(competencyTag.getCompetencyTagName());
-        });
-        return projectsTagName;
-    }
-
-    // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
-        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
-        // user의 projects 전체 탐색
-        readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
-
-        // 필수요소인 isfinished로 1차 필터링
-        readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
-
-        // 날짜 선택으로 2차 필터링
-        readDefaultPageList = findProjectsShortByDate(projectsSearchRequest.getStart_date(), projectsSearchRequest.getFinish_date(), readDefaultPageList);
-
-        // 태그 선택으로 3차 필터링
-        readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
-
-
-
-        return readDefaultPageList;
-    }
-
-    // 0 > 종료 안된 프로젝트 1 > 종료된 프로젝트 2 > 둘 다
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if(isFinished == 2){ return readDefaultPageList;}
-        return readDefaultPageList.stream().filter(
-                readDefaultPage -> readDefaultPage.getIs_finished().equals(isFinished)
-        ).collect(Collectors.toList());
-    }
-
-    // Date를 기준으로 필터링 해서 보내주기
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if(start_date == null && end_date == null){ return readDefaultPageList; }
-        else if(end_date == null){
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
-            ).collect(Collectors.toList());
-        } else if (start_date == null) {
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
-            ).collect(Collectors.toList());
-        } else {
-            return readDefaultPageList.stream().filter(
-                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
-            ).collect(Collectors.toList());
-        }
     }
 
     // 태그들을 기준으로 필터링해서 보내주기
@@ -190,22 +88,56 @@ public class ProjectsService {
     }
 
     @Transactional
-    public ResponseDTO resumeProject(Integer projectId, UUID userId) {
+    public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Create projectCreateDTO, UUID userId) {
+        try {
+            Projects existingProject = projectsRepo.findById(projectId)
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+
+            // 필수 필드 및 날짜 검증
+            String validationError = validateProjectCreateDTO(projectCreateDTO);
+            if (validationError != null) {
+                return new ResponseDTO(false, validationError);
+            }
+
+            if (existingProject.getUser_id().equals(userId)) {
+                Projects updatedProject = Projects.builder()
+                        .id(existingProject.getId())
+                        .user_id(existingProject.getUser_id())
+                        .name(projectCreateDTO.getName() != null ? projectCreateDTO.getName() : existingProject.getName())
+                        .start_date(projectCreateDTO.getStart_date() != null ? projectCreateDTO.getStart_date() : existingProject.getStart_date())
+                        .finish_date(projectCreateDTO.getFinish_date() != null ? projectCreateDTO.getFinish_date() : existingProject.getFinish_date())
+                        .description(projectCreateDTO.getDescription() != null ? projectCreateDTO.getDescription() : existingProject.getDescription())
+                        .part(projectCreateDTO.getPart() != null ? projectCreateDTO.getPart() : existingProject.getPart())
+                        .is_finished(existingProject.getIs_finished())
+                        .update_date(new Date())
+                        .user(existingProject.getUser())
+                        .experiencesList(existingProject.getExperiencesList())
+                        .projectDataList(existingProject.getProjectDataList())
+                        .competencyTagList(existingProject.getCompetencyTagList())
+                        .build();
+
+                projectsRepo.save(updatedProject);
+
+                return new ResponseDTO(true, "Project updated successfully", updatedProject);
+            } else {
+                return new ResponseDTO(false, "You are not authorized to update this project");
+            }
+        } catch (NoSuchElementException e) {
+            return new ResponseDTO(false, e.getMessage());
+        } catch (Exception e) {
+            return new ResponseDTO(false, "An error occurred while updating the project: " + e.getMessage());
+        }
+    }
+
+    public ResponseDTO deleteProject(Integer projectId, UUID userId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
         if (projectOpt.isPresent()) {
-            Projects existingProject = projectOpt.get();
-            if (existingProject.getUser_id().equals(userId)) {
-                // 프로젝트 재개 처리
-                existingProject.resumeProject();
-
-                // CompetencyTag 삭제
-                existingProject.getCompetencyTagList().clear();
-
-                projectsRepo.save(existingProject);
-
-                return new ResponseDTO(true, "Project resumed successfully", existingProject);
+            Projects project = projectOpt.get();
+            if (project.getUser_id().equals(userId)) {
+                projectsRepo.delete(project);
+                return new ResponseDTO(true, "Project deleted successfully");
             } else {
-                return new ResponseDTO(false, "You are not authorized to resume this project");
+                return new ResponseDTO(false, "You are not authorized to delete this project");
             }
         } else {
             return new ResponseDTO(false, "Project not found");
@@ -257,54 +189,147 @@ public class ProjectsService {
     }
 
     @Transactional
-    public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Update projectUpdateDTO, UUID userId) {
-        try {
-            Projects existingProject = projectsRepo.findById(projectId)
-                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
-
-            if (existingProject.getUser_id().equals(userId)) {
-                Projects updatedProject = Projects.builder()
-                        .id(existingProject.getId())
-                        .user_id(existingProject.getUser_id())
-                        .name(projectUpdateDTO.getName() != null ? projectUpdateDTO.getName() : existingProject.getName())
-                        .start_date(projectUpdateDTO.getStart_date() != null ? projectUpdateDTO.getStart_date() : existingProject.getStart_date())
-                        .finish_date(projectUpdateDTO.getFinish_date() != null ? projectUpdateDTO.getFinish_date() : existingProject.getFinish_date())
-                        .description(projectUpdateDTO.getDescription() != null ? projectUpdateDTO.getDescription() : existingProject.getDescription())
-                        .part(projectUpdateDTO.getPart() != null ? projectUpdateDTO.getPart() : existingProject.getPart())
-                        .is_finished(existingProject.getIs_finished())
-                        .update_date(new Date())
-                        .user(existingProject.getUser())
-                        .experiencesList(existingProject.getExperiencesList())
-                        .projectDataList(existingProject.getProjectDataList())
-                        .competencyTagList(existingProject.getCompetencyTagList())
-                        .build();
-
-                projectsRepo.save(updatedProject);
-
-                return new ResponseDTO(true, "Project updated successfully", updatedProject);
-            } else {
-                return new ResponseDTO(false, "You are not authorized to update this project");
-            }
-        } catch (NoSuchElementException e) {
-            return new ResponseDTO(false, e.getMessage());
-        } catch (Exception e) {
-            return new ResponseDTO(false, "An error occurred while updating the project: " + e.getMessage());
-        }
-    }
-
-    public ResponseDTO deleteProject(Integer projectId, UUID userId) {
+    public ResponseDTO resumeProject(Integer projectId, UUID userId) {
         Optional<Projects> projectOpt = projectsRepo.findById(projectId);
         if (projectOpt.isPresent()) {
-            Projects project = projectOpt.get();
-            if (project.getUser_id().equals(userId)) {
-                projectsRepo.delete(project);
-                return new ResponseDTO(true, "Project deleted successfully");
+            Projects existingProject = projectOpt.get();
+            if (existingProject.getUser_id().equals(userId)) {
+                // 프로젝트 재개 처리
+                existingProject.resumeProject();
+
+                // CompetencyTag 삭제
+                existingProject.getCompetencyTagList().clear();
+
+                projectsRepo.save(existingProject);
+
+                return new ResponseDTO(true, "Project resumed successfully", existingProject);
             } else {
-                return new ResponseDTO(false, "You are not authorized to delete this project");
+                return new ResponseDTO(false, "You are not authorized to resume this project");
             }
         } else {
             return new ResponseDTO(false, "Project not found");
         }
     }
 
+    private String validateProjectCreateDTO(ProjectsDTO.Create projectCreateDTO) {
+        if (projectCreateDTO.getName() == null || projectCreateDTO.getName().isEmpty()) {
+            return "Project name is required";
+        }
+        if (projectCreateDTO.getStart_date() == null) {
+            return "Start date is required";
+        }
+        if (projectCreateDTO.getFinish_date() == null) {
+            return "Finish date is required";
+        }
+        if (projectCreateDTO.getDescription() == null || projectCreateDTO.getDescription().isEmpty()) {
+            return "Description is required";
+        }
+        if (projectCreateDTO.getStart_date().after(projectCreateDTO.getFinish_date())) {
+            return "Start date cannot be after finish date";
+        }
+        return null;
+    }
+
+    public ResponseDTO getUrl(Integer projectId) {
+        Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+        if (projectOpt.isPresent()) {
+            String picture = projectOpt.get().getPicture();
+            return  picture != null
+                    ? new ResponseDTO(true, "Get project picture successfully", projectOpt.get().getPicture())
+                    : new ResponseDTO(false, "No picture in the project", null);
+        }else {
+                return new ResponseDTO(false, "Project not found");
+        }
+    }
+
+    public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadata(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
+        // Find the project by ID
+        Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
+                .orElseThrow(() -> new NoSuchElementException("Project not found"));
+
+        // Process the project data list and fetch metadata
+        return project.getProjectDataList().stream()
+                .map(projectData -> {
+                    try {
+                        // Fetch metadata and create UrlMetadata object
+                        return referenceService.fetchMetadata(projectData.getReferences_link());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to fetch metadata", e);
+                    }
+                })
+                .toList();
+    }
+
+    // UUID를 넘겨주면 해당 UUID가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
+    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByUUID(UUID userId) {
+        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
+        User user = userRepo.findById(userId).get();
+        user.getProjects().forEach(project -> readDefaultPageList.add(
+                new ProjectsDTO.ReadDefaultPage(
+                        user,
+                        project,
+                        findProjectsTagId(project),
+                        findProjectsTagName(project))));
+        return readDefaultPageList;
+    }
+
+    //  competency에서 tag id만 뽑아와서 list로 만들어주기
+    public List<Integer> findProjectsTagId(Projects projects) {
+        List<Integer> projectsTagId = new ArrayList<>();
+        projects.getCompetencyTagList().forEach(
+                competencyTag -> projectsTagId.add(competencyTag.getId()));
+        return projectsTagId;
+    }
+
+    // competency에서 tag 이름만 뽑아와서 list로 만들어주기
+    public List<String> findProjectsTagName(Projects projects) {
+        List<String> projectsTagName = new ArrayList<>();
+        projects.getCompetencyTagList().forEach(
+                competencyTag -> projectsTagName.add(competencyTag.getCompetencyTagName()));
+        return projectsTagName;
+    }
+
+    // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
+    public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
+        List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
+        // user의 projects 전체 탐색
+        readDefaultPageList = findProjectsShortByUUID(projectsSearchRequest.getUser_id());
+
+        // 필수요소인 isfinished로 1차 필터링
+        readDefaultPageList = findProjectsShortByIsFinished(projectsSearchRequest.getIs_finished(), readDefaultPageList);
+
+        // 날짜 선택으로 2차 필터링
+        readDefaultPageList = findProjectsShortByDate(projectsSearchRequest.getStart_date(), projectsSearchRequest.getFinish_date(), readDefaultPageList);
+
+        // 태그 선택으로 3차 필터링
+        readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
+
+        return readDefaultPageList;
+    }
+
+    // 0 > 종료 안된 프로젝트 1 > 종료된 프로젝트 2 > 둘 다
+    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
+        if(isFinished == 2){ return readDefaultPageList;}
+        return readDefaultPageList.stream().filter(
+                readDefaultPage -> readDefaultPage.getIs_finished().equals(isFinished)
+        ).toList();
+    }
+
+    // Date를 기준으로 필터링 해서 보내주기
+    public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
+        if(start_date == null && end_date == null){ return readDefaultPageList; }
+        else if(end_date == null){
+            return readDefaultPageList.stream().filter(
+                    readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
+            ).toList();
+        } else if (start_date == null) {
+            return readDefaultPageList.stream().filter(
+                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
+            ).toList();
+        } else {
+            return readDefaultPageList.stream().filter(
+                    readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
+            ).toList();
+        }
+    }
 }
