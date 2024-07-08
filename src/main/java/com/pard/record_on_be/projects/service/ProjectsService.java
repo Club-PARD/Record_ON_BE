@@ -230,8 +230,16 @@ public class ProjectsService {
         return null;
     }
 
-    public String getUrl(Integer projectId) {
-        return projectsRepo.findById(projectId).get().getPicture();
+    public ResponseDTO getUrl(Integer projectId) {
+        Optional<Projects> projectOpt = projectsRepo.findById(projectId);
+        if (projectOpt.isPresent()) {
+            String picture = projectOpt.get().getPicture();
+            return  picture != null
+                    ? new ResponseDTO(true, "Get project picture successfully", projectOpt.get().getPicture())
+                    : new ResponseDTO(false, "No picture in the project", null);
+        }else {
+                return new ResponseDTO(false, "Project not found");
+        }
     }
 
     public List<ReferenceDTO.UrlMetadata> getProjectUrlMetadata(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
