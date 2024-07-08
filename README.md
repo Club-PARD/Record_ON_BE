@@ -16,19 +16,19 @@
 
 <p align="center">
 
-  <a href="https://en.cppreference.com/w/" target="_blank">
+  <a>
     <img src="https://img.shields.io/badge/HTML5-E34F26.svg?style=flat&logo=html5&logoColor=white" alt="HTML">
   </a>
-  <a href="https://isocpp.org/" target="_blank">
+  <a>
     <img src="https://img.shields.io/badge/CSS3-1572B6.svg?style=flat&logo=css3&logoColor=white" alt="CSS">
   </a>
-  <a href="https://www.oracle.com/java/" target="_blank">
+  <a>
     <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=javascript&logoColor=white" alt="js">
   </a>
-  <a href="https://www.python.org/" target="_blank">
+  <a>
     <img src="https://img.shields.io/badge/AWS-232F3E.svg?style=flat&logo=amazonwebservices&logoColor=white" alt="aws">
   </a>
-  <a href="https://spring.io/projects/spring-boot/" target="_blank">
+  <a>
     <img src="https://img.shields.io/badge/springboot-6DB33F.svg?style=flate&logo=springboot&logoColor=white" alt="springboot">
   </a>
 </p>
@@ -62,7 +62,7 @@
   <summary>목차</summary>
   <ol>
     <li>
-      <a href="#service-iontroduction">Service Introduction</a>
+      <a href="#service-introduction">Service Introduction</a>
       <ul>
         <li><a href="#goals-&-non-goals">Goals & Non-Goals</a></li>
       </ul>
@@ -81,12 +81,13 @@
     <li><a href="#branch-criteria">Branch Criteria</a></li>
     <li><a href="#stack">Stack</a></li>
     <li><a href="#documentation">Documentation</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#team-member">Team member</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 <!-- ABOUT THE PROJECT -->
+
 ## Service Introduction
 
 ### 경험을 상세하게 기록하기 어려운 이들을 위한 ”경험 기록 서비스, RECORD ON”
@@ -244,7 +245,7 @@
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
-## Contact
+## Team Member
 
 |                          🐣 조예은                           |                          🐭 박예람                           |                          🦉 김기영                           |                          🐱 전소명                           |
 |:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
