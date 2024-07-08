@@ -64,7 +64,7 @@
     <li>
       <a href="#Service Introduction">서비스 소개</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#Goals & Non-Goals">Goals & Non-Goals</a></li>
       </ul>
     </li>
     <li>
@@ -101,18 +101,15 @@
 
 
 
-### Built With
+### Goals & Non-Goals
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+## Goals
+- 경험의 상세한 부분들까지 체계적으로 기록할 수 있도록 도와주는 것.
+- 상세한 기록을 통해 자기소개서를 막힘없이 작성할 수 있도록 도와주는 것.
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+## Non-goals
+- 단순히 자기소개서를 잘 작성하게 써주는 것.
+- 전문 자기소개서 피드백을 해주는 것.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
