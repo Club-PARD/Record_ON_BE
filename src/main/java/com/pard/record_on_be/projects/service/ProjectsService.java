@@ -318,6 +318,37 @@ public class ProjectsService {
     }
 
     // UUID 를 넘겨주면 해당 UUID 가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
+    public List<ReferenceDTO.MetadataWithUrl> getProjectMetaWithUrl(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
+        try {
+            // Find the project by ID
+            Projects project = projectsRepo.findById(urlCollectRequest.getProject_id())
+                    .orElseThrow(() -> new NoSuchElementException("Project not found"));
+
+            // Process the project data list and fetch metadata
+            return project.getProjectDataList().stream()
+                    .map(projectData -> {
+                        try {
+                            // Fetch metadata and create UrlMetadata object
+                            ReferenceDTO.UrlMetadata urlMetadata = referenceService.fetchMetadata(projectData.getReferences_link());
+                            return new ReferenceDTO.MetadataWithUrl(projectData.getReferences_link(), urlMetadata.getTitle(), urlMetadata.getImageUrl());
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to fetch metadata", e);
+                        }
+                    })
+                    .toList();
+        } catch (NoSuchElementException e) {
+            // Handle case where project is not found
+            // You can log the error or rethrow as needed
+            throw new NoSuchElementException("Project not found", e);
+        } catch (Exception e) {
+            // Handle any other unexpected exceptions
+            // Log the error or rethrow as needed
+            throw new RuntimeException("Failed to process project metadata", e);
+        }
+    }
+
+
+    // UUID를 넘겨주면 해당 UUID가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByUUID(UUID userId) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
         try {
