@@ -70,7 +70,7 @@ public class ExperiencesService {
             createOrUpdateProjectData(experienceInfo, experience);
 
             return new ResponseDTO(true, "Experience created successfully", new ExperiencesDTO.Read(experience));
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             return new ResponseDTO(false, e.getMessage());
         } catch (Exception e) {
             return new ResponseDTO(false, "An error occurred while creating the experience: " + e.getMessage());
@@ -236,7 +236,7 @@ public class ExperiencesService {
         }
         return experienceSearchResponseList.stream().filter(
                 experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
-        ).collect(Collectors.toList());
+        ).toList();
     }
 
     // 프로젝트 ID 로 해당하는 경험들 간략하게 가져오기
@@ -393,7 +393,7 @@ public class ExperiencesService {
             } else {
                 return new ResponseDTO(false, "Experience not found");
             }
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             return new ResponseDTO(false, e.getMessage());
         } catch (Exception e) {
             return new ResponseDTO(false, "An error occurred while updating the experience: " + e.getMessage());
@@ -425,23 +425,35 @@ public class ExperiencesService {
                         .references_link(link)
                         .projects(experience.getProjects())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         projectDataRepo.saveAll(projectDataList);
     }
 
-    private void checkQuestionsAndTags(List<Integer> questionIds, List<Integer> tagIds) {
+    // 주어진 태그와 질문의 관계를 확인하는 메서드
+    public void checkQuestionsAndTags(List<Integer> questionIds, List<Integer> tagIds) {
+        if (questionIds.size() != tagIds.size()) {
+            throw new IllegalArgumentException("The number of questions and tags must be the same");
+        }
+
         for (int i = 0; i < questionIds.size(); i++) {
             Integer questionId = questionIds.get(i);
             Integer tagId = tagIds.get(i);
 
-            storedQuestionInfoRepo.findById(questionId)
+            // 질문이 존재하는지 확인
+            StoredQuestionInfo question = storedQuestionInfoRepo.findById(questionId)
                     .orElseThrow(() -> new NoSuchElementException("Question with ID " + questionId + " not found"));
-            storedTagInfoRepo.findById(tagId)
+
+            // 태그가 존재하는지 확인
+            StoredTagInfo tag = storedTagInfoRepo.findById(tagId)
                     .orElseThrow(() -> new NoSuchElementException("Tag with ID " + tagId + " not found"));
+
+            // 질문과 태그가 관련이 있는지 확인
+            if (!question.getStoredTagInfo().getId().equals(tag.getId())) {
+                throw new IllegalArgumentException("Question with ID " + questionId + " is not related to Tag with ID " + tagId);
+            }
         }
     }
-
 
     @Transactional
     public ResponseDTO deleteExperience(Integer id, UUID userId) {
