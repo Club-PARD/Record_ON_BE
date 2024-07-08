@@ -130,6 +130,7 @@ public class ExperiencesDTO {
         private List<String> reference_link;
         private String common_question_answer;
         private List<Integer> question_id;
+        private List<String> question_text;
         private List<String> question_answer;
     }
 }

@@ -90,6 +90,14 @@ public class ExperiencesService {
                     .map(AnswerHistories::getQuestion_id)
                     .toList();
 
+            List<String> questionTexts = experience.getAnswerHistoriesList().stream()
+                    .map(answerHistories -> storedQuestionInfoRepo
+                            .findById(answerHistories.getQuestion_id())
+                            .map(StoredQuestionInfo::getQuestionText)
+                            .orElse("Unknown Question")
+                    )
+                    .toList();
+
             List<String> questionAnswers = experience.getAnswerHistoriesList().stream()
                     .map(AnswerHistories::getContent)
                     .toList();
@@ -107,6 +115,7 @@ public class ExperiencesService {
                     referenceLinks,
                     experience.getCommon_question_answer(),
                     questionIds,
+                    questionTexts,
                     questionAnswers
             );
 
