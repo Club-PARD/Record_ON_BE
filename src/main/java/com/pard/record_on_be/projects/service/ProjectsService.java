@@ -60,7 +60,12 @@ public class ProjectsService {
     @Transactional
     public ResponseDTO createProject(ProjectsDTO.Create projectCreateDTO) {
         try {
-            // 없는 유저이면 예외 발생
+            // 필수 필드 및 날짜 검증
+            String validationError = validateProjectCreateDTO(projectCreateDTO);
+            if (validationError != null) {
+                return new ResponseDTO(false, validationError);
+            }
+                // 없는 유저이면 예외 발생
             User user = userRepo.findById(projectCreateDTO.getUser_id())
                     .orElseThrow(() -> new NoSuchElementException("User with ID " + projectCreateDTO.getUser_id() + " not found"));
 
@@ -257,20 +262,26 @@ public class ProjectsService {
     }
 
     @Transactional
-    public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Update projectUpdateDTO, UUID userId) {
+    public ResponseDTO updateProject(Integer projectId, ProjectsDTO.Create projectCreateDTO, UUID userId) {
         try {
             Projects existingProject = projectsRepo.findById(projectId)
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+
+            // 필수 필드 및 날짜 검증
+            String validationError = validateProjectCreateDTO(projectCreateDTO);
+            if (validationError != null) {
+                return new ResponseDTO(false, validationError);
+            }
 
             if (existingProject.getUser_id().equals(userId)) {
                 Projects updatedProject = Projects.builder()
                         .id(existingProject.getId())
                         .user_id(existingProject.getUser_id())
-                        .name(projectUpdateDTO.getName() != null ? projectUpdateDTO.getName() : existingProject.getName())
-                        .start_date(projectUpdateDTO.getStart_date() != null ? projectUpdateDTO.getStart_date() : existingProject.getStart_date())
-                        .finish_date(projectUpdateDTO.getFinish_date() != null ? projectUpdateDTO.getFinish_date() : existingProject.getFinish_date())
-                        .description(projectUpdateDTO.getDescription() != null ? projectUpdateDTO.getDescription() : existingProject.getDescription())
-                        .part(projectUpdateDTO.getPart() != null ? projectUpdateDTO.getPart() : existingProject.getPart())
+                        .name(projectCreateDTO.getName() != null ? projectCreateDTO.getName() : existingProject.getName())
+                        .start_date(projectCreateDTO.getStart_date() != null ? projectCreateDTO.getStart_date() : existingProject.getStart_date())
+                        .finish_date(projectCreateDTO.getFinish_date() != null ? projectCreateDTO.getFinish_date() : existingProject.getFinish_date())
+                        .description(projectCreateDTO.getDescription() != null ? projectCreateDTO.getDescription() : existingProject.getDescription())
+                        .part(projectCreateDTO.getPart() != null ? projectCreateDTO.getPart() : existingProject.getPart())
                         .is_finished(existingProject.getIs_finished())
                         .update_date(new Date())
                         .user(existingProject.getUser())
@@ -305,6 +316,25 @@ public class ProjectsService {
         } else {
             return new ResponseDTO(false, "Project not found");
         }
+    }
+
+    private String validateProjectCreateDTO(ProjectsDTO.Create projectCreateDTO) {
+        if (projectCreateDTO.getName() == null || projectCreateDTO.getName().isEmpty()) {
+            return "Project name is required";
+        }
+        if (projectCreateDTO.getStart_date() == null) {
+            return "Start date is required";
+        }
+        if (projectCreateDTO.getFinish_date() == null) {
+            return "Finish date is required";
+        }
+        if (projectCreateDTO.getDescription() == null || projectCreateDTO.getDescription().isEmpty()) {
+            return "Description is required";
+        }
+        if (projectCreateDTO.getStart_date().after(projectCreateDTO.getFinish_date())) {
+            return "Start date cannot be after finish date";
+        }
+        return null;
     }
 
 }
