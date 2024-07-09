@@ -31,7 +31,7 @@ public class Projects {
     @Column(name = "name", nullable = false, columnDefinition = "TINYTEXT")
     private String name;
 
-    @Column(name = "start_date", nullable = false, updatable = false)
+    @Column(name = "start_date", nullable = false)
     private Date start_date;
 
     @Column(name = "update_date", nullable = false)
