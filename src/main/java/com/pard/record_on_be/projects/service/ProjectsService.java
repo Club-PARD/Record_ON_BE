@@ -117,7 +117,7 @@ public class ProjectsService {
             }
 
             for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
-                if (readDefaultPage != null && readDefaultPage.getCompetency_tag_name() != null &&
+                if (!readDefaultPage.getCompetency_tag_name().equals("") && readDefaultPage != null && readDefaultPage.getCompetency_tag_name() != null &&
                         readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)) {
                     filteredList.add(readDefaultPage);
                 }
@@ -471,19 +471,32 @@ public class ProjectsService {
     }
 
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
+        // readDefaultPageList가 null인지 확인합니다.
+        if (readDefaultPageList == null) {
+            throw new IllegalArgumentException("The readDefaultPageList cannot be null");
+        }
+
+        // isFinished가 null이거나 2이면 전체 리스트를 반환합니다.
         if (isFinished == null || isFinished == 2) {
             return readDefaultPageList;
         }
 
         List<ProjectsDTO.ReadDefaultPage> filteredList = new ArrayList<>();
+
+        // readDefaultPageList를 순회하면서 조건에 맞는 요소를 필터링합니다.
         for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
-            if (readDefaultPage != null && readDefaultPage.getIs_finished() != null && readDefaultPage.getIs_finished().equals(isFinished)) {
+            if (readDefaultPage == null) {
+                throw new IllegalArgumentException("The readDefaultPageList contains a null element");
+            }
+
+            if (readDefaultPage.getIs_finished() != null && readDefaultPage.getIs_finished().equals(isFinished)) {
                 filteredList.add(readDefaultPage);
             }
         }
 
         return filteredList;
     }
+
 
     // Date 를 기준으로 필터링 해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
