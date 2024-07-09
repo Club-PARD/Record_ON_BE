@@ -60,6 +60,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin(domain);
+        configuration.addAllowedOrigin("https://recordon.today");
+        configuration.addAllowedOrigin("https://recordon-c8464.web.app");
         configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("Content-Type");
         configuration.addAllowedMethod("GET");
