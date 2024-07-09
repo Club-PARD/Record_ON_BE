@@ -435,7 +435,7 @@ public class ProjectsService {
     }
 
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
+    public ResponseDTO findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
 
         try {
@@ -457,17 +457,16 @@ public class ProjectsService {
             System.err.println("Error while filtering projects: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
             // 여기서는 빈 목록 반환 예시
-            return Collections.emptyList();
+            return new ResponseDTO(false, "Error while filtering projects" + e.getMessage());
         } catch (Exception e) {
             // 예외 처리: 그 외 예상치 못한 예외 상황 처리
             // 예를 들어, 데이터베이스 연결 문제 등
             System.err.println("Unexpected error while filtering projects: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
             // 여기서는 빈 목록 반환 예시
-            return Collections.emptyList();
+            return new ResponseDTO(false, "Error while filtering projects" + e.getMessage());
         }
-
-        return readDefaultPageList;
+        return new ResponseDTO(true, "Successfully found " + readDefaultPageList.size() + " projects", readDefaultPageList);
     }
 
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
