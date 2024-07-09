@@ -16,6 +16,7 @@ import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,7 +141,7 @@ public class ExperiencesService {
     }
 
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
-    public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesByFilter(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
+    public ResponseDTO searchExperiences(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
         // Null 체크 및 유효성 검사
         if (experienceSearchRequest == null) {
             throw new IllegalArgumentException("Experience search request cannot be null");
@@ -163,22 +164,28 @@ public class ExperiencesService {
 
             // 텍스트로 3차 필터링
             experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
-            return experienceSearchResponseList;
+            return new ResponseDTO(true, "Search Success!", experienceSearchResponseList);
 
         } catch (IllegalArgumentException e) {
             // 유효성 검사 오류를 처리
             System.err.println("Invalid request: " + e.getMessage());
-            throw e;
+            return new ResponseDTO(false, "Invalid request: " + e.getMessage());
         } catch (NoSuchElementException e) {
             // 프로젝트나 사용자가 존재하지 않는 경우
             System.err.println("Project or user not found: " + e.getMessage());
-            throw new IllegalArgumentException("Project or user not found", e);
+            return new ResponseDTO(false, "Project or user not found: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            // 사용자가 존재하지 않는 경우
+            System.err.println("User not found: " + e.getMessage());
+            return new ResponseDTO(false, "User not found: " + e.getMessage());
         } catch (Exception e) {
             // 예상치 못한 오류를 처리
             System.err.println("Error while filtering experiences: " + e.getMessage());
-            return Collections.emptyList();
+            return new ResponseDTO(false, "Error while filtering experiences: " + e.getMessage());
         }
     }
+
+
 
     private void checkUserAccessToProject(UUID userId, Integer projectId) {
         // 사용자가 해당 프로젝트에 접근 가능한지 확인하는 로직
