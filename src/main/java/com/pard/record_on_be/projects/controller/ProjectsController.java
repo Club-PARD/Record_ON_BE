@@ -79,6 +79,6 @@ public class ProjectsController {
     @PostMapping("/reference")
     @Operation(summary = "프로젝트에 저장된 reference link를 전부 가져옵니다.", description = "경험 생성하며 저장한 관련 자료 링크들을 전부 모아 가져옵니다.")
     public List<ReferenceDTO.MetadataWithUrl> getReferences(@RequestBody ReferenceDTO.UrlCollectRequest request) {
-        return projectsService.getProjectMetaWithUrl(request);
+        return projectsService.referenceResponse(request);
     }
 }
