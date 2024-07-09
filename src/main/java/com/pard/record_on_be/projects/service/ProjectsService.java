@@ -117,7 +117,7 @@ public class ProjectsService {
             }
 
             for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
-                if (readDefaultPage != null && readDefaultPage.getCompetency_tag_name() != null &&
+                if (!readDefaultPage.getCompetency_tag_name().equals("") && readDefaultPage != null && readDefaultPage.getCompetency_tag_name() != null &&
                         readDefaultPage.getCompetency_tag_name().containsAll(competencyTagNameList)) {
                     filteredList.add(readDefaultPage);
                 }
@@ -435,7 +435,7 @@ public class ProjectsService {
     }
 
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
-    public List<ProjectsDTO.ReadDefaultPage> findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
+    public ResponseDTO findProjectsByFilter(ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList = new ArrayList<>();
 
         try {
@@ -457,27 +457,43 @@ public class ProjectsService {
             System.err.println("Error while filtering projects: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
             // 여기서는 빈 목록 반환 예시
-            return Collections.emptyList();
+            return new ResponseDTO(false, "Error while filtering projects" + e.getMessage());
         } catch (Exception e) {
             // 예외 처리: 그 외 예상치 못한 예외 상황 처리
             // 예를 들어, 데이터베이스 연결 문제 등
             System.err.println("Unexpected error while filtering projects: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수도 있음
             // 여기서는 빈 목록 반환 예시
-            return Collections.emptyList();
+            return new ResponseDTO(false, "Error while filtering projects" + e.getMessage());
         }
-
-        return readDefaultPageList;
+        return new ResponseDTO(true, "Successfully found " + readDefaultPageList.size() + " projects", readDefaultPageList);
     }
 
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
-        if (isFinished == null || isFinished == 2) {
+        // readDefaultPageList가 null인지 확인합니다.
+        if (readDefaultPageList == null) {
+            throw new IllegalArgumentException("The readDefaultPageList cannot be null");
+        }
+
+        // isFinished가 유효한 값인지 확인합니다.
+        if (isFinished == null || (isFinished != 0 && isFinished != 1 && isFinished != 2)) {
+            throw new IllegalArgumentException("isFinished must be 0, 1, or 2");
+        }
+
+        // isFinished가 null이거나 2이면 전체 리스트를 반환합니다.
+        if (isFinished == 2) {
             return readDefaultPageList;
         }
 
         List<ProjectsDTO.ReadDefaultPage> filteredList = new ArrayList<>();
+
+        // readDefaultPageList를 순회하면서 조건에 맞는 요소를 필터링합니다.
         for (ProjectsDTO.ReadDefaultPage readDefaultPage : readDefaultPageList) {
-            if (readDefaultPage != null && readDefaultPage.getIs_finished() != null && readDefaultPage.getIs_finished().equals(isFinished)) {
+            if (readDefaultPage == null) {
+                throw new IllegalArgumentException("The readDefaultPageList contains a null element");
+            }
+
+            if (readDefaultPage.getIs_finished() != null && readDefaultPage.getIs_finished().equals(isFinished)) {
                 filteredList.add(readDefaultPage);
             }
         }
@@ -485,24 +501,38 @@ public class ProjectsService {
         return filteredList;
     }
 
+
     // Date 를 기준으로 필터링 해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
         try {
+            // readDefaultPageList가 null인지 확인합니다.
+            if (readDefaultPageList == null) {
+                throw new IllegalArgumentException("The readDefaultPageList cannot be null");
+            }
+
+            // start_date가 end_date보다 나중인 경우 예외를 던집니다.
+            if (start_date != null && end_date != null && start_date.after(end_date)) {
+                throw new IllegalArgumentException("Start date cannot be after end date");
+            }
+
             if (start_date == null && end_date == null) {
                 return readDefaultPageList;
             } else if (end_date == null) {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getStart_date().after(start_date))
+                        .toList();
             } else if (start_date == null) {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date))
+                        .toList();
             } else {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date))
+                        .toList();
             }
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid argument: " + e.getMessage());
+            throw e; // 예외를 다시 던져 호출자가 처리할 수 있도록 합니다.
         } catch (Exception e) {
             System.err.println("Error while filtering projects by date: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수 있음
@@ -510,4 +540,5 @@ public class ProjectsService {
             return new ArrayList<>();
         }
     }
+
 }

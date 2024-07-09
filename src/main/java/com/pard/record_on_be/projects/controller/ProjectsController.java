@@ -44,9 +44,11 @@ public class ProjectsController {
 
     @PostMapping("/search")
     @Operation(summary = "전체 프로젝트 대상 필터링", description = "사용자가 설정한 조건을 갖춘 프로젝트들을 보여줍니다.")
-    public List<ProjectsDTO.ReadDefaultPage> getSearchProjects(@RequestBody ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
-        return projectsService.findProjectsByFilter(projectsSearchRequest);
+    public ResponseEntity<ResponseDTO> getSearchProjects(@RequestBody ProjectsDTO.ProjectsSearchRequest projectsSearchRequest) {
+        ResponseDTO response = projectsService.findProjectsByFilter(projectsSearchRequest);
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
+
 
     @PutMapping("/finish/{project_id}")
     @Operation(summary = "프로젝트 완료", description = "프로젝트를 완료합니다.")
