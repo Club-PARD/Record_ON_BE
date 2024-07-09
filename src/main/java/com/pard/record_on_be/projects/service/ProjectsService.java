@@ -476,8 +476,13 @@ public class ProjectsService {
             throw new IllegalArgumentException("The readDefaultPageList cannot be null");
         }
 
+        // isFinished가 유효한 값인지 확인합니다.
+        if (isFinished == null || (isFinished != 0 && isFinished != 1 && isFinished != 2)) {
+            throw new IllegalArgumentException("isFinished must be 0, 1, or 2");
+        }
+
         // isFinished가 null이거나 2이면 전체 리스트를 반환합니다.
-        if (isFinished == null || isFinished == 2) {
+        if (isFinished == 2) {
             return readDefaultPageList;
         }
 
