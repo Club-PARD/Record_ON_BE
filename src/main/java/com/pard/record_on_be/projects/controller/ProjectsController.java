@@ -36,7 +36,7 @@ public class ProjectsController {
     @Operation(summary = "프로젝트 카드들 보기", description = "사용자가 생성한 모든 프로젝트 카드들을 보여줍니다.")
     public ProjectsDTO.ReadAll getAllProjects(@PathVariable UUID userId) { return projectsService.findAll(userId); }
 
-    @GetMapping("/{project_id}")
+    @PostMapping("/{project_id}")
     @Operation(summary = "프로젝트 하나 읽어오기", description = "프로젝트 수정 시 필요한 정보들을 불러옵니다.")
     public ResponseDTO compactRead(@PathVariable Integer project_id, @RequestBody UserDTO.UserIdDTO userIdDTO) {
         return projectsService.compactReadById(project_id, userIdDTO);
