@@ -408,17 +408,18 @@ public class ExperiencesService {
         }
     }
 
-    public Object findAllExpCollectionPage(Integer project_id, UUID user_id) {
+    public ResponseDTO findAllExpCollectionPage(ExperiencesDTO.ExperiencesCollectionPageRequest request) {
         try {
-            Projects project = projectsRepo.findById(project_id)
-                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + project_id + " not found"));
+            Projects project = projectsRepo.findById(request.getProject_id())
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + request.getProject_id() + " not found"));
 
             // Check if the user is the owner of the project
-            if (!project.getUser_id().equals(user_id)) {
+            if (!project.getUser_id().equals(request.getUser_id())) {
                 return new ResponseDTO(false, "User is not authorized to view this project");
             }
 
-            return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+
+            return new ResponseDTO(true, "success!" , new ExperiencesDTO.ExperiencesCollectionPageResponse(
                     project.getName(),
                     project.getPicture(),
                     project.getIs_finished(),
@@ -426,8 +427,8 @@ public class ExperiencesService {
                     project.getFinish_date(),
                     project.getDescription(),
                     project.getPart(),
-                    findExperienceShortByProjectId(project_id)
-            );
+                    findExperienceShortByProjectId(request.getProject_id())
+            ));
         } catch (NoSuchElementException e) {
             return new ResponseDTO(false, e.getMessage());
         } catch (Exception e) {

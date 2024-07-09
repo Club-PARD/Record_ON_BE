@@ -36,6 +36,7 @@ public class ExperiencesDTO {
         private Date start_date;
         private Date finish_date;
         private String search_text;
+        private Integer sort_type;
     }
 
     @Getter
@@ -60,6 +61,7 @@ public class ExperiencesDTO {
     public static class ExperiencesCollectionPageRequest {
         private UUID user_id;
         private Integer project_id;
+        private Integer sort_type;
     }
 
     @Getter

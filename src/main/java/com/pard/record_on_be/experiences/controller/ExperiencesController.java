@@ -45,8 +45,9 @@ public class ExperiencesController {
 
     @PostMapping("/project")
     @Operation(summary = "경험카드 모여있는 전체 페이지 뷰", description = "프로젝트를 처음 클릭했을 때 보여줄 경험들이 모여있는 페이지 입니다.")
-    public Object getExperiences(@RequestBody ExperiencesDTO.ExperiencesCollectionPageRequest experiencesCollectionPageRequest) {
-        return experiencesService.findAllExpCollectionPage(experiencesCollectionPageRequest.getProject_id(), experiencesCollectionPageRequest.getUser_id());
+    public ResponseEntity<ResponseDTO> getExperiences(@RequestBody ExperiencesDTO.ExperiencesCollectionPageRequest experiencesCollectionPageRequest) {
+        ResponseDTO response = experiencesService.findAllExpCollectionPage(experiencesCollectionPageRequest);
+        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.FORBIDDEN).body(response);
     }
 
     @PutMapping("/{id}")
