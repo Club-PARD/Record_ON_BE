@@ -340,7 +340,8 @@ public class ExperiencesService {
                                 experience.getTitle(),
                                 tagIds,
                                 tagNames,
-                                experience.getExp_date()
+                                experience.getExp_date(),
+                                experience.getUpdate_date()
                         ));
             });
 
@@ -418,7 +419,15 @@ public class ExperiencesService {
                 return new ResponseDTO(false, "User is not authorized to view this project");
             }
 
+            List<ExperiencesDTO.ExperienceSearchResponse> responses = findExperienceShortByProjectId(request.getProject_id());
 
+            if(request.getSort_type() == 1){
+                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+            } else if (request.getSort_type() == 2){
+                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+            } else {
+                return new ResponseDTO(false, "Sort type not supported");
+            }
             return new ResponseDTO(true, "success!" , new ExperiencesDTO.ExperiencesCollectionPageResponse(
                     project.getName(),
                     project.getPicture(),
@@ -427,7 +436,7 @@ public class ExperiencesService {
                     project.getFinish_date(),
                     project.getDescription(),
                     project.getPart(),
-                    findExperienceShortByProjectId(request.getProject_id())
+                    responses
             ));
         } catch (NoSuchElementException e) {
             return new ResponseDTO(false, e.getMessage());
