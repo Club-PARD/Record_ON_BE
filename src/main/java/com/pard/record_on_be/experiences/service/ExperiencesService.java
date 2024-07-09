@@ -145,16 +145,29 @@ public class ExperiencesService {
 
     // 프론트에서 보내준 필터링 조건에 맞춘 데이터들을 보내주기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesByFilter(ExperiencesDTO.ExperienceSearchRequest experienceSearchRequest) {
-        List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
-        // project 의 experience 전체 탐색
-        experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
-        // 날짜 선택으로 1차 필터링
-        experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
-        // 태그 선택으로 2차 필터링
-        experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
-        // 텍스트 검색으로 3차 필터링
-        experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
-        return experienceSearchResponseList;
+        if (experienceSearchRequest == null) {
+            throw new IllegalArgumentException("Experience search request cannot be null");
+        }
+
+        try {
+            List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
+            // project 의 experience 전체 탐색
+            experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
+            // 날짜 선택으로 1차 필터링
+            experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
+            // 태그 선택으로 2차 필터링
+            experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
+            // 텍스트 검색으로 3차 필터링
+            experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
+            return experienceSearchResponseList;
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid request: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("Error while filtering experiences: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
