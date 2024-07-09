@@ -34,6 +34,9 @@ public class Experiences {
     @Column(name = "exp_date", columnDefinition = "DATE")
     private Date exp_date;
 
+    @Column(name = "update_date", nullable = false)
+    private Date update_date;
+
     /*
         jsoninclude로 null일떄 테이블이 추가되지 않도록 함.
         내용이 없으면 프런트에서 null 처리 해서 넘겨줘야 함.
