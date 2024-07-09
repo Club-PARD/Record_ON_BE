@@ -171,7 +171,7 @@
 
 ## ERD
 
-<img src="asset/images/Record_on_ERD.png">
+<img src="asset/images/Record_on_ERD(1).png">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
