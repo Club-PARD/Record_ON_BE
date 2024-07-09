@@ -162,6 +162,7 @@ public class ProjectsService {
                         .experiencesList(existingProject.getExperiencesList())
                         .projectDataList(existingProject.getProjectDataList())
                         .competencyTagList(existingProject.getCompetencyTagList())
+                        .picture(existingProject.getPicture())
                         .build();
 
                 projectsRepo.save(updatedProject);
