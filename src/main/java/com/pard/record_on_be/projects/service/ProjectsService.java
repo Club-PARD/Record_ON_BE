@@ -10,6 +10,7 @@ import com.pard.record_on_be.stored_info.entity.StoredCompetencyTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredCompetencyTagInfoRepo;
 import com.pard.record_on_be.reference.dto.ReferenceDTO;
 import com.pard.record_on_be.reference.service.ReferenceService;
+import com.pard.record_on_be.user.dto.UserDTO;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
@@ -82,20 +83,23 @@ public class ProjectsService {
     }
 
     // 프로젝트 수정시 필요한 간략한 정보 리턴
-    public ResponseDTO compactReadById(Integer projectId) {
+    public ResponseDTO compactReadById(Integer projectId, UserDTO.UserIdDTO userIdDTO) {
         try {
             Projects existingProject = projectsRepo.findById(projectId)
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
-            ProjectsDTO.CompactRead compactRead = ProjectsDTO.CompactRead.builder()
-                    .project_name(existingProject.getName())
-                    .description(existingProject.getDescription())
-                    .part(existingProject.getPart())
-                    .start_date(existingProject.getStart_date())
-                    .finish_date(existingProject.getFinish_date())
-                    .project_image(existingProject.getPicture())
-                    .build();
-
+            if (existingProject.getUser_id().equals(userIdDTO.getUser_id())) {
+                ProjectsDTO.CompactRead compactRead = ProjectsDTO.CompactRead.builder()
+                        .project_name(existingProject.getName())
+                        .description(existingProject.getDescription())
+                        .part(existingProject.getPart())
+                        .start_date(existingProject.getStart_date())
+                        .finish_date(existingProject.getFinish_date())
+                        .project_image(existingProject.getPicture())
+                        .build();
                 return new ResponseDTO(true, "Project compact read successfully", compactRead);
+            }else {
+                return new ResponseDTO(false, "You are not authorized to update this project");
+            }
         } catch (NoSuchElementException e) {
             return new ResponseDTO(false, e.getMessage());
         } catch (Exception e) {
