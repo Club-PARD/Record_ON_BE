@@ -57,6 +57,7 @@ public class ExperiencesService {
                     .projects_id(experienceInfo.getProjects_id())
                     .title(experienceInfo.getTitle())
                     .exp_date(experienceInfo.getExp_date())
+                    .update_date(new Date())
                     .free_content(experienceInfo.getFree_content())
                     .common_question_answer(experienceInfo.getCommon_question_answer())
                     .build();
@@ -350,6 +351,7 @@ public class ExperiencesService {
                         .projects_id(experienceInfo.getProjects_id())
                         .title(experienceInfo.getTitle())
                         .exp_date(experienceInfo.getExp_date())
+                        .update_date(new Date())
                         .free_content(experienceInfo.getFree_content())
                         .common_question_answer(experienceInfo.getCommon_question_answer())
                         .projects(projects)

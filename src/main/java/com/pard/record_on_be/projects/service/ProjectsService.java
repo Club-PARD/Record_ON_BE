@@ -56,6 +56,7 @@ public class ProjectsService {
                     .finish_date(projectCreateDTO.getFinish_date())
                     .description(projectCreateDTO.getDescription())
                     .part(projectCreateDTO.getPart())
+                    .is_finished(0)
                     .user(user)
                     .build();
 
