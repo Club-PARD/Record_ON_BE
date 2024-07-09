@@ -501,21 +501,34 @@ public class ProjectsService {
     // Date 를 기준으로 필터링 해서 보내주기
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByDate(Date start_date, Date end_date, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
         try {
+            // readDefaultPageList가 null인지 확인합니다.
+            if (readDefaultPageList == null) {
+                throw new IllegalArgumentException("The readDefaultPageList cannot be null");
+            }
+
+            // start_date가 end_date보다 나중인 경우 예외를 던집니다.
+            if (start_date != null && end_date != null && start_date.after(end_date)) {
+                throw new IllegalArgumentException("Start date cannot be after end date");
+            }
+
             if (start_date == null && end_date == null) {
                 return readDefaultPageList;
             } else if (end_date == null) {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getStart_date().after(start_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getStart_date().after(start_date))
+                        .toList();
             } else if (start_date == null) {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date))
+                        .toList();
             } else {
-                return readDefaultPageList.stream().filter(
-                        readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date)
-                ).toList();
+                return readDefaultPageList.stream()
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date))
+                        .toList();
             }
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid argument: " + e.getMessage());
+            throw e; // 예외를 다시 던져 호출자가 처리할 수 있도록 합니다.
         } catch (Exception e) {
             System.err.println("Error while filtering projects by date: " + e.getMessage());
             // 예외를 다시 던지거나, 기본값이나 빈 목록을 반환할 수 있음
@@ -523,4 +536,5 @@ public class ProjectsService {
             return new ArrayList<>();
         }
     }
+
 }
