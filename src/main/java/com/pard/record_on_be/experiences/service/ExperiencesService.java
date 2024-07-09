@@ -13,7 +13,10 @@ import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
 import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
 import com.pard.record_on_be.stored_info.repo.StoredTagInfoRepo;
+import com.pard.record_on_be.user.entity.User;
+import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ExperiencesService {
 
     private final ExperiencesRepo experiencesRepo;
@@ -30,15 +34,7 @@ public class ExperiencesService {
     private final ProjectsRepo projectsRepo;
     private final StoredTagInfoRepo storedTagInfoRepo;
     private final ProjectDataRepo projectDataRepo;
-
-    public ExperiencesService(ExperiencesRepo experiencesRepo, StoredQuestionInfoRepo storedQuestionInfoRepo, AnswerHistoriesRepo answerHistoriesRepo, ProjectsRepo projectsRepo, StoredTagInfoRepo storedTagInfoRepo, ProjectDataRepo projectDataRepo) {
-        this.experiencesRepo = experiencesRepo;
-        this.storedQuestionInfoRepo = storedQuestionInfoRepo;
-        this.answerHistoriesRepo = answerHistoriesRepo;
-        this.projectsRepo = projectsRepo;
-        this.storedTagInfoRepo = storedTagInfoRepo;
-        this.projectDataRepo = projectDataRepo;
-    }
+    private final UserRepo userRepo;
 
     // 경험 생성
     @Transactional
@@ -151,7 +147,11 @@ public class ExperiencesService {
         }
 
         try {
+            // 사용자가 해당 프로젝트에 접근 가능한지 확인
+            checkUserAccessToProject(experienceSearchRequest.getUser_id(), experienceSearchRequest.getProject_id());
+
             List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList;
+
             // 프로젝트 ID로 경험 목록을 가져옴
             experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
 
@@ -169,10 +169,27 @@ public class ExperiencesService {
             // 유효성 검사 오류를 처리
             System.err.println("Invalid request: " + e.getMessage());
             throw e;
+        } catch (NoSuchElementException e) {
+            // 프로젝트나 사용자가 존재하지 않는 경우
+            System.err.println("Project or user not found: " + e.getMessage());
+            throw new IllegalArgumentException("Project or user not found", e);
         } catch (Exception e) {
             // 예상치 못한 오류를 처리
             System.err.println("Error while filtering experiences: " + e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    private void checkUserAccessToProject(UUID userId, Integer projectId) {
+        // 사용자가 해당 프로젝트에 접근 가능한지 확인하는 로직
+        Projects project = projectsRepo.findById(projectId)
+                .orElseThrow(() -> new NoSuchElementException("Project with ID " + projectId + " not found"));
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " not found"));
+
+        if (!user.getProjects().contains(project)) {
+            throw new IllegalArgumentException("User with ID " + userId + " does not have access to project with ID " + projectId);
         }
     }
 
