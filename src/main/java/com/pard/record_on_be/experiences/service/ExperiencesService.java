@@ -177,108 +177,155 @@ public class ExperiencesService {
     }
 
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByText(String text, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-        // 1차 필터링: answerHistories 에서 text 를 포함하는 experiences 찾기
-        List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
-                .filter(experienceSearchResponse -> {
-                    Optional<Experiences> experiencesOptional = experiencesRepo.findById(experienceSearchResponse.getExperience_id());
-                    if (experiencesOptional.isPresent()) {
-                        Experiences experiences = experiencesOptional.get();
-                        return experiences.getAnswerHistoriesList().stream()
-                                .anyMatch(answerHistories -> answerHistories.getContent().contains(text));
-                    }
-                    return false;
-                }).collect(Collectors.toList());
+        // Null 체크 및 유효성 검사
+        if (experienceSearchResponseList == null) {
+            throw new IllegalArgumentException("The experienceSearchResponseList cannot be null");
+        }
 
-        Set<Integer> filteredExperienceIds = expFilteredList.stream()
-                .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
-                .collect(Collectors.toSet());
+        try {
+            // 텍스트가 null이거나 비어있으면 전체 리스트 반환
+            if (text == null || text.isEmpty()) {
+                return experienceSearchResponseList;
+            }
 
-        // 2차 필터링: 제목에서 필터링
-        experienceSearchResponseList.stream().filter(
-                experienceSearchResponse -> {
-                    Integer experienceId = experienceSearchResponse.getExperience_id();
-                    if (!filteredExperienceIds.contains(experienceId)) {
-                        Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
-                        if (SecondFilteredOptional.isPresent()) {
-                            Experiences experiences = SecondFilteredOptional.get();
-                            return experiences.getTitle().contains(text);
+            // 1차 필터링: answerHistories 에서 text 를 포함하는 experiences 찾기
+            List<ExperiencesDTO.ExperienceSearchResponse> expFilteredList = experienceSearchResponseList.stream()
+                    .filter(experienceSearchResponse -> {
+                        Optional<Experiences> experiencesOptional = experiencesRepo.findById(experienceSearchResponse.getExperience_id());
+                        if (experiencesOptional.isPresent()) {
+                            Experiences experiences = experiencesOptional.get();
+                            return experiences.getAnswerHistoriesList().stream()
+                                    .anyMatch(answerHistories -> answerHistories.getContent().contains(text));
                         }
-                    }
-                    return false;
-                }
-        ).forEach(experienceSearchResponse -> {
-            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
-            expFilteredList.add(experienceSearchResponse);
-        });
+                        return false;
+                    }).collect(Collectors.toList());
 
-        // 3차 필터링: 공통 질문란에서 필터링
-        experienceSearchResponseList.stream().filter(
-                experienceSearchResponse -> {
-                    Integer experienceId = experienceSearchResponse.getExperience_id();
-                    if (!filteredExperienceIds.contains(experienceId)) {
-                        Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
-                        if (SecondFilteredOptional.isPresent()) {
-                            Experiences experiences = SecondFilteredOptional.get();
-                            return experiences.getCommon_question_answer().contains(text);
+            // 1차 필터링된 경험들의 ID를 Set에 저장
+            Set<Integer> filteredExperienceIds = expFilteredList.stream()
+                    .map(ExperiencesDTO.ExperienceSearchResponse::getExperience_id)
+                    .collect(Collectors.toSet());
+
+            // 2차 필터링: 제목에서 text 를 포함하는 experiences 찾기
+            experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> {
+                        Integer experienceId = experienceSearchResponse.getExperience_id();
+                        if (!filteredExperienceIds.contains(experienceId)) {
+                            Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
+                            if (SecondFilteredOptional.isPresent()) {
+                                Experiences experiences = SecondFilteredOptional.get();
+                                return experiences.getTitle().contains(text);
+                            }
                         }
+                        return false;
                     }
-                    return false;
-                }
-        ).forEach(experienceSearchResponse -> {
-            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
-            expFilteredList.add(experienceSearchResponse);
-        });
+            ).forEach(experienceSearchResponse -> {
+                filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+                expFilteredList.add(experienceSearchResponse);
+            });
 
-        // 4차 필터링: free_content 에서 text 를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
-        experienceSearchResponseList.stream().filter(
-                experienceSearchResponse -> {
-                    Integer experienceId = experienceSearchResponse.getExperience_id();
-                    if (!filteredExperienceIds.contains(experienceId)) {
-                        Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(experienceId);
-                        if (finalFilteredOptional.isPresent()) {
-                            Experiences experiences = finalFilteredOptional.get();
-                            return experiences.getFree_content().contains(text);
+            // 3차 필터링: 공통 질문란에서 text 를 포함하는 experiences 찾기
+            experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> {
+                        Integer experienceId = experienceSearchResponse.getExperience_id();
+                        if (!filteredExperienceIds.contains(experienceId)) {
+                            Optional<Experiences> SecondFilteredOptional = experiencesRepo.findById(experienceId);
+                            if (SecondFilteredOptional.isPresent()) {
+                                Experiences experiences = SecondFilteredOptional.get();
+                                return experiences.getCommon_question_answer().contains(text);
+                            }
                         }
+                        return false;
                     }
-                    return false;
-                }).forEach(experienceSearchResponse -> {
-            filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
-            expFilteredList.add(experienceSearchResponse);
-        });
+            ).forEach(experienceSearchResponse -> {
+                filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+                expFilteredList.add(experienceSearchResponse);
+            });
 
-        return expFilteredList;
+            // 4차 필터링: free_content 에서 text 를 포함하는 experiences 찾기, 이미 추가된 experience_id는 제외
+            experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> {
+                        Integer experienceId = experienceSearchResponse.getExperience_id();
+                        if (!filteredExperienceIds.contains(experienceId)) {
+                            Optional<Experiences> finalFilteredOptional = experiencesRepo.findById(experienceId);
+                            if (finalFilteredOptional.isPresent()) {
+                                Experiences experiences = finalFilteredOptional.get();
+                                return experiences.getFree_content().contains(text);
+                            }
+                        }
+                        return false;
+                    }).forEach(experienceSearchResponse -> {
+                filteredExperienceIds.add(experienceSearchResponse.getExperience_id());
+                expFilteredList.add(experienceSearchResponse);
+            });
+
+            return expFilteredList;
+        } catch (Exception e) {
+            // 예외를 처리하고 로그 출력
+            System.err.println("Error while filtering experiences by text: " + e.getMessage());
+            throw new RuntimeException("An error occurred while filtering experiences by text", e);
+        }
     }
 
     // 보내준 experience 들 중에 tag 가 전부 들어간 것들을 전부 찾기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperiencesShortByTag(List<String> tagNameList, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-        if (tagNameList == null || tagNameList.isEmpty()) {
-            return experienceSearchResponseList;
+        // Null 체크 및 유효성 검사
+        if (experienceSearchResponseList == null) {
+            throw new IllegalArgumentException("The experienceSearchResponseList cannot be null");
         }
-        return experienceSearchResponseList.stream().filter(
-                experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
-        ).toList();
+
+        try {
+            // 태그가 없으면 전체 리스트 반환
+            if (tagNameList == null || tagNameList.isEmpty()) {
+                return experienceSearchResponseList;
+            }
+
+            // 태그를 포함하는 경험만 필터링
+            return experienceSearchResponseList.stream().filter(
+                    experienceSearchResponse -> experienceSearchResponse.getTag_name().containsAll(tagNameList)
+            ).toList();
+        } catch (Exception e) {
+            // 오류를 처리
+            System.err.println("Error while filtering experiences by tag: " + e.getMessage());
+            throw new RuntimeException("An error occurred while filtering experiences by tag", e);
+        }
     }
 
     // 프로젝트 ID 로 해당하는 경험들 간략하게 가져오기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByProjectId(Integer projectId) {
-        List<ExperiencesDTO.ExperienceSearchResponse> readDefaultPageList = new ArrayList<>();
-        Projects projects = projectsRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        // Null 체크 및 유효성 검사
+        if (projectId == null) {
+            throw new IllegalArgumentException("Project ID cannot be null");
+        }
 
-        projects.getExperiencesList().forEach(experience -> {
-            List<AnswerHistories> answerHistoriesList = experience.getAnswerHistoriesList();
-            List<Integer> tagIds = findExperiencesTagId(answerHistoriesList);
-            List<String> tagNames = findExperiencesTagName(tagIds);
+        try {
+            List<ExperiencesDTO.ExperienceSearchResponse> readDefaultPageList = new ArrayList<>();
 
-            readDefaultPageList.add(
-                    new ExperiencesDTO.ExperienceSearchResponse(
-                            experience.getId(),
-                            experience.getTitle(),
-                            tagIds,
-                            tagNames,
-                            experience.getExp_date()
-                    ));
-        });
-        return readDefaultPageList;
+            // 프로젝트를 ID로 찾고 없으면 예외 발생
+            Projects projects = projectsRepo.findById(projectId)
+                    .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+            // 경험 목록을 가져와서 응답 리스트에 추가
+            projects.getExperiencesList().forEach(experience -> {
+                List<AnswerHistories> answerHistoriesList = experience.getAnswerHistoriesList();
+                List<Integer> tagIds = findExperiencesTagId(answerHistoriesList);
+                List<String> tagNames = findExperiencesTagName(tagIds);
+
+                readDefaultPageList.add(
+                        new ExperiencesDTO.ExperienceSearchResponse(
+                                experience.getId(),
+                                experience.getTitle(),
+                                tagIds,
+                                tagNames,
+                                experience.getExp_date()
+                        ));
+            });
+
+            return readDefaultPageList;
+        } catch (Exception e) {
+            // 오류를 처리
+            System.err.println("Error while fetching experiences by project ID: " + e.getMessage());
+            throw new RuntimeException("An error occurred while fetching experiences by project ID", e);
+        }
     }
 
     // AnswerHistories 에서 tag_id만 뽑아와서 List 로 만들어주는 메서드
@@ -300,19 +347,40 @@ public class ExperiencesService {
 
     // 날짜 기준으로 sort 하는 list 만들어주기
     public List<ExperiencesDTO.ExperienceSearchResponse> findExperienceShortByDate(Date start_date, Date end_date, List<ExperiencesDTO.ExperienceSearchResponse> experienceSearchResponseList) {
-        if(start_date == null && end_date == null){ return experienceSearchResponseList; }
-        else if(end_date == null){
-            return experienceSearchResponseList.stream().filter(
-                    experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
-            ).toList();
-        } else if (start_date == null) {
-            return experienceSearchResponseList.stream().filter(
-                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
-            ).toList();
-        } else {
-            return experienceSearchResponseList.stream().filter(
-                    experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
-            ).toList();
+        // Null 체크 및 유효성 검사
+        if (experienceSearchResponseList == null) {
+            throw new IllegalArgumentException("The experienceSearchResponseList cannot be null");
+        }
+
+        // 날짜 유효성 검사
+        if (start_date != null && end_date != null && start_date.after(end_date)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        try {
+            // 날짜가 모두 null이면 전체 리스트 반환
+            if (start_date == null && end_date == null) {
+                return experienceSearchResponseList;
+            } else if (end_date == null) {
+                // end_date가 null이면 start_date 이후의 경험만 필터링
+                return experienceSearchResponseList.stream().filter(
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
+                ).toList();
+            } else if (start_date == null) {
+                // start_date가 null이면 end_date 이전의 경험만 필터링
+                return experienceSearchResponseList.stream().filter(
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
+                ).toList();
+            } else {
+                // start_date와 end_date 모두 있는 경우 해당 기간의 경험만 필터링
+                return experienceSearchResponseList.stream().filter(
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
+                ).toList();
+            }
+        } catch (Exception e) {
+            // 오류를 처리
+            System.err.println("Error while filtering experiences by date: " + e.getMessage());
+            throw new RuntimeException("An error occurred while filtering experiences by date", e);
         }
     }
 
