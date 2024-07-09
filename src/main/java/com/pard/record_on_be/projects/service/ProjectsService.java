@@ -317,6 +317,41 @@ public class ProjectsService {
                 .toList();
     }
 
+    public List<ReferenceDTO.MetadataWithUrl> referenceResponse(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
+        try {
+            // 사용자 정보를 Optional로 받아 옵니다.
+            Optional<User> userOptional = userRepo.findById(urlCollectRequest.getUser_id());
+
+            // 사용자 정보가 없을 경우 예외를 던집니다.
+            if (!userOptional.isPresent()) {
+                throw new NoSuchElementException("User with ID " + urlCollectRequest.getUser_id() + " not found");
+            }
+
+            // 프로젝트 정보를 Optional로 받아 옵니다.
+            Optional<Projects> projectOptional = projectsRepo.findById(urlCollectRequest.getProject_id());
+
+            // 프로젝트 정보가 없을 경우 예외를 던집니다.
+            if (!projectOptional.isPresent()) {
+                throw new NoSuchElementException("Project with ID " + urlCollectRequest.getProject_id() + " not found");
+            }
+
+            // 사용자가 해당 프로젝트를 가지고 있는지 확인합니다.
+            User user = userOptional.get();
+            Projects projects = projectOptional.get();
+            if (!user.getProjects().contains(projects)) {
+                throw new NoSuchElementException("User with ID " + urlCollectRequest.getUser_id() + " does not have the project with ID " + urlCollectRequest.getProject_id());
+            }
+        } catch (NoSuchElementException e) {
+            // 예외를 로그에 남기고 빈 리스트를 반환합니다.
+            System.err.println(e.getMessage());
+            return Collections.emptyList();
+        }
+
+        // 프로젝트 메타 데이터를 가져옵니다.
+        return getProjectMetaWithUrl(urlCollectRequest);
+    }
+
+
     // UUID 를 넘겨주면 해당 UUID 가 가지고 있는 정보를 project 페이지에 들어가는 간소화 정보로 변환하여 넘겨줌
     public List<ReferenceDTO.MetadataWithUrl> getProjectMetaWithUrl(ReferenceDTO.UrlCollectRequest urlCollectRequest) {
         try {
