@@ -59,6 +59,8 @@ public class ExperiencesDTO {
         }
     }
 
+
+
     @Getter
     public static class ExperiencesCollectionPageRequest {
         private UUID user_id;

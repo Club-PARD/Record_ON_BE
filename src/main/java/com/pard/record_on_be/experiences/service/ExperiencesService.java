@@ -155,15 +155,25 @@ public class ExperiencesService {
 
             // 프로젝트 ID로 경험 목록을 가져옴
             experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
-
             // 날짜로 1차 필터링
             experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
-
             // 태그로 2차 필터링
             experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
-
             // 텍스트로 3차 필터링
             experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
+
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
+
+            if (experienceSearchRequest.getSort_type() == 1) {
+                Collections.sort(experienceSearchResponseList, Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+            } else if (experienceSearchRequest.getSort_type() == 2) {
+
+            } else {
+                return new ResponseDTO(false, "Not Supported Sort Type!");
+            }
+
             return new ResponseDTO(true, "Search Success!", experienceSearchResponseList);
 
         } catch (IllegalArgumentException e) {
