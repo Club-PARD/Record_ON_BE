@@ -76,6 +76,7 @@ public class ProjectsService {
     public ProjectsDTO.ReadAll findAll(UUID userId) {
         List<ProjectsDTO.ReadDefaultPage> readDefaultPageList;
         readDefaultPageList = findProjectsShortByUUID(userId);
+        readDefaultPageList.sort(Comparator.comparing(ProjectsDTO.ReadDefaultPage::getFinish_date).reversed());
         return new ProjectsDTO.ReadAll(
                 userRepo.findById(userId).get().getName(),
                 readDefaultPageList
