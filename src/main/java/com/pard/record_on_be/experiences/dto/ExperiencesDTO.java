@@ -36,6 +36,7 @@ public class ExperiencesDTO {
         private Date start_date;
         private Date finish_date;
         private String search_text;
+        private Integer sort_type;
     }
 
     @Getter
@@ -46,20 +47,25 @@ public class ExperiencesDTO {
         private List<Integer> tag_id;
         private List<String> tag_name;
         private Date exp_date;
+        private Date update_date;
 
-        public ExperienceSearchResponse(Integer experience_id, String experience_name, List<Integer> tag_id, List<String> tag_name, Date exp_date) {
+        public ExperienceSearchResponse(Integer experience_id, String experience_name, List<Integer> tag_id, List<String> tag_name, Date exp_date, Date update_date) {
             this.experience_id = experience_id;
             this.experience_name = experience_name;
             this.tag_id = tag_id;
             this.tag_name = tag_name;
             this.exp_date = exp_date;
+            this.update_date = update_date;
         }
     }
+
+
 
     @Getter
     public static class ExperiencesCollectionPageRequest {
         private UUID user_id;
         private Integer project_id;
+        private Integer sort_type;
     }
 
     @Getter

@@ -155,16 +155,59 @@ public class ExperiencesService {
 
             // 프로젝트 ID로 경험 목록을 가져옴
             experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
+
+            experienceSearchResponseList = new ArrayList<>(experienceSearchResponseList);
 
             // 날짜로 1차 필터링
             experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
 
             // 태그로 2차 필터링
             experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
 
             // 텍스트로 3차 필터링
             experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
-            return new ResponseDTO(true, "Search Success!", experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
+
+            List<ExperiencesDTO.ExperienceSearchResponse> responses = new ArrayList<>(experienceSearchResponseList);
+
+            try {
+                if (experienceSearchRequest.getSort_type() == 1) {
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+                } else if (experienceSearchRequest.getSort_type() == 2) {
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+                } else {
+                    return new ResponseDTO(false, "Not Supported Sort Type!");
+                }
+            } catch (NullPointerException e) {
+                // Sorting 중에 NullPointerException 처리
+                System.err.println("Null value encountered while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Null value encountered while sorting: " + e.getMessage());
+            } catch (ClassCastException e) {
+                // Sorting 중에 ClassCastException 처리
+                System.err.println("Class cast error while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Class cast error while sorting: " + e.getMessage());
+            } catch (UnsupportedOperationException e) {
+                // Sorting 중에 UnsupportedOperationException 처리
+                System.err.println("Unsupported operation while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Unsupported operation while sorting: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                // Sorting 중에 IllegalArgumentException 처리
+                System.err.println("Invalid argument while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Invalid argument while sorting: " + e.getMessage());
+            }
+
+            return new ResponseDTO(true, "Search Success!", responses);
 
         } catch (IllegalArgumentException e) {
             // 유효성 검사 오류를 처리
@@ -340,7 +383,8 @@ public class ExperiencesService {
                                 experience.getTitle(),
                                 tagIds,
                                 tagNames,
-                                experience.getExp_date()
+                                experience.getExp_date(),
+                                experience.getUpdate_date()
                         ));
             });
 
@@ -408,17 +452,26 @@ public class ExperiencesService {
         }
     }
 
-    public Object findAllExpCollectionPage(Integer project_id, UUID user_id) {
+    public ResponseDTO findAllExpCollectionPage(ExperiencesDTO.ExperiencesCollectionPageRequest request) {
         try {
-            Projects project = projectsRepo.findById(project_id)
-                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + project_id + " not found"));
+            Projects project = projectsRepo.findById(request.getProject_id())
+                    .orElseThrow(() -> new NoSuchElementException("Project with ID " + request.getProject_id() + " not found"));
 
             // Check if the user is the owner of the project
-            if (!project.getUser_id().equals(user_id)) {
+            if (!project.getUser_id().equals(request.getUser_id())) {
                 return new ResponseDTO(false, "User is not authorized to view this project");
             }
 
-            return new ExperiencesDTO.ExperiencesCollectionPageResponse(
+            List<ExperiencesDTO.ExperienceSearchResponse> responses = findExperienceShortByProjectId(request.getProject_id());
+
+            if(request.getSort_type() == 1){
+                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+            } else if (request.getSort_type() == 2){
+                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+            } else {
+                return new ResponseDTO(false, "Sort type not supported");
+            }
+            return new ResponseDTO(true, "success!" , new ExperiencesDTO.ExperiencesCollectionPageResponse(
                     project.getName(),
                     project.getPicture(),
                     project.getIs_finished(),
@@ -426,8 +479,8 @@ public class ExperiencesService {
                     project.getFinish_date(),
                     project.getDescription(),
                     project.getPart(),
-                    findExperienceShortByProjectId(project_id)
-            );
+                    responses
+            ));
         } catch (NoSuchElementException e) {
             return new ResponseDTO(false, e.getMessage());
         } catch (Exception e) {
