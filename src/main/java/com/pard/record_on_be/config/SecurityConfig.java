@@ -21,10 +21,10 @@ public class SecurityConfig {
     @Value("${recordon.server.domain}")
     private String domain;
 
-    @Value("${recordon.server.domain1}")
+    @Value("${recordon.client.domain1}")
     private String domain1;
 
-    @Value("${recordon.server.domain2}")
+    @Value("${recordon.client.domain2}")
     private String domain2;
 
     public SecurityConfig(JwtFilter jwtFilter) {
