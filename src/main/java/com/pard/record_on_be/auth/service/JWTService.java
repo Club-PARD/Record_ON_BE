@@ -1,10 +1,11 @@
-package com.pard.record_on_be.util.jwt;
+package com.pard.record_on_be.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,43 +13,30 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class JWTService {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private Key key;
 
     @Value("${jwt.secret}")
-    private String secretKey;
+    public void setKey(String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
+    @Getter
     @Value("${jwt.access.token.expiration}")
-    public Long accessTokenExpiration;
+    private Long accessTokenExpiration;
 
+    @Getter
     @Value("${jwt.refresh.token.expiration}")
-    public Long refreshTokenExpiration;
+    private Long refreshTokenExpiration;
 
     public String generateAccessToken(String email) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
-
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key)
-                .compact();
+        return createToken(email, accessTokenExpiration);
     }
 
     public String generateRefreshToken(String email) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
-
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key)
-                .compact();
+        return createToken(email, refreshTokenExpiration);
     }
 
     public String refreshAccessToken(String refreshToken) throws JwtException {
@@ -58,6 +46,25 @@ public class JWTService {
         } catch (JwtException e) {
             throw new JwtException("Failed to validate refresh token: " + e.getMessage());
         }
+    }
+
+    private String createToken(String email, Long expirationTime) {
+        Map<String, Object> claims = new HashMap<>();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(key)
+                .compact();
+    }
+
+    private Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Claims validateToken(String token) {
@@ -72,16 +79,4 @@ public class JWTService {
         }
     }
 
-    public String extractUsername(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-        return claims.getSubject();
-    }
-
-    private Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
 }
