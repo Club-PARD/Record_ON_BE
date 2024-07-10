@@ -41,7 +41,12 @@ public class ExperiencesService {
     @Transactional
     public ResponseDTO createExperience(ExperiencesDTO.ExperienceInfo experienceInfo) {
         try {
-            // 대상 프로젝트의 존재여부 확인
+            Optional<User> userOptional = userRepo.findById(experienceInfo.getUser_id());
+            if (!userOptional.isPresent()) {
+                throw new IllegalArgumentException("해당 userid에 대한 사용자를 찾을 수 없습니다: " + experienceInfo.getUser_id());
+            }
+
+                // 대상 프로젝트의 존재여부 확인
             Projects projects = projectsRepo.findById(experienceInfo.getProjects_id())
                     .orElseThrow(() -> new NoSuchElementException("Project with ID " + experienceInfo.getProjects_id() + " not found"));
 
