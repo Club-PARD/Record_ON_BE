@@ -31,7 +31,7 @@ public class Experiences {
     @Column(name = "title", columnDefinition = "TINYTEXT")
     private String title;
 
-    @Column(name = "exp_date", columnDefinition = "DATE")
+    @Column(name = "exp_date")
     private Date exp_date;
 
     @Column(name = "update_date", nullable = false)

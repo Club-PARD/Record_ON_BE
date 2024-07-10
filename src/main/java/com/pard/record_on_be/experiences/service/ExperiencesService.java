@@ -9,6 +9,7 @@ import com.pard.record_on_be.project_data.entity.ProjectData;
 import com.pard.record_on_be.project_data.repo.ProjectDataRepo;
 import com.pard.record_on_be.projects.entity.Projects;
 import com.pard.record_on_be.projects.repo.ProjectsRepo;
+import com.pard.record_on_be.projects.service.ProjectsService;
 import com.pard.record_on_be.stored_info.entity.StoredQuestionInfo;
 import com.pard.record_on_be.stored_info.entity.StoredTagInfo;
 import com.pard.record_on_be.stored_info.repo.StoredQuestionInfoRepo;
@@ -18,6 +19,8 @@ import com.pard.record_on_be.user.repo.UserRepo;
 import com.pard.record_on_be.util.ResponseDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,8 @@ public class ExperiencesService {
     private final StoredTagInfoRepo storedTagInfoRepo;
     private final ProjectDataRepo projectDataRepo;
     private final UserRepo userRepo;
+
+    private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
 
     // 경험 생성
     @Transactional
@@ -430,6 +435,8 @@ public class ExperiencesService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
+        logger.info("Start date: {}, End date: {}, exp date : {}", start_date, end_date, experienceSearchResponseList.get(0).getExp_date());
+
         try {
             // 날짜가 모두 null이면 전체 리스트 반환
             if (start_date == null && end_date == null) {
@@ -437,17 +444,17 @@ public class ExperiencesService {
             } else if (end_date == null) {
                 // end_date가 null이면 start_date 이후의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().after(toMidnight(start_date))
                 ).toList();
             } else if (start_date == null) {
                 // start_date가 null이면 end_date 이전의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(toEndOfDay(end_date))
                 ).toList();
             } else {
                 // start_date와 end_date 모두 있는 경우 해당 기간의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(toEndOfDay(end_date)) && experienceSearchResponse.getExp_date().after(toMidnight(start_date))
                 ).toList();
             }
         } catch (Exception e) {
@@ -455,6 +462,26 @@ public class ExperiencesService {
             System.err.println("Error while filtering experiences by date: " + e.getMessage());
             throw new RuntimeException("An error occurred while filtering experiences by date", e);
         }
+    }
+
+    public static Date toMidnight(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    public static Date toEndOfDay(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTime();
     }
 
     public ResponseDTO findAllExpCollectionPage(ExperiencesDTO.ExperiencesCollectionPageRequest request) {
