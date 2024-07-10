@@ -628,8 +628,12 @@ public class ExperiencesService {
 
     @Transactional
     public ResponseDTO deleteExperience(Integer id, UUID userId) {
-        Optional<Experiences> optionalExperience = experiencesRepo.findById(id);
-        if (optionalExperience.isPresent()) {
+        try {
+            Optional<Experiences> optionalExperience = experiencesRepo.findById(id);
+            if (!optionalExperience.isPresent()) {
+                return new ResponseDTO(false, "Experience not found");
+            }
+
             Experiences experience = optionalExperience.get();
 
             // Check if the user is the owner of the experience
@@ -637,14 +641,17 @@ public class ExperiencesService {
                 return new ResponseDTO(false, "User is not authorized to delete this experience");
             }
 
+            System.err.println(id + " " + userId);
+
             // Delete related entities
             answerHistoriesRepo.deleteByExperiencesId(id);
             projectDataRepo.deleteByExperiencesId(id);
             experiencesRepo.delete(experience);
 
             return new ResponseDTO(true, "Experience deleted successfully");
-        } else {
-            return new ResponseDTO(false, "Experience not found");
+        } catch (Exception e) {
+            // 예외가 발생했을 경우 처리
+            return new ResponseDTO(false, "Failed to delete experience: " + e.getMessage());
         }
     }
 }
