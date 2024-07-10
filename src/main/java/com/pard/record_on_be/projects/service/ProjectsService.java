@@ -32,6 +32,7 @@ public class ProjectsService {
     private final UserRepo userRepo;
     private final StoredCompetencyTagInfoRepo storedCompetencyTagInfoRepo;
     private final ReferenceService referenceService;
+    private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
 
     // 프로젝트 생성
     @Transactional
@@ -522,19 +523,21 @@ public class ProjectsService {
                 throw new IllegalArgumentException("Start date cannot be after end date");
             }
 
+            logger.info("Start date: {}, End date: {}", start_date, end_date);
+
             if (start_date == null && end_date == null) {
                 return readDefaultPageList;
             } else if (end_date == null) {
                 return readDefaultPageList.stream()
-                        .filter(readDefaultPage -> readDefaultPage.getStart_date().after(start_date))
+                        .filter(readDefaultPage -> readDefaultPage.getStart_date().after(toMidnight(start_date)))
                         .toList();
             } else if (start_date == null) {
                 return readDefaultPageList.stream()
-                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date))
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(toEndOfDay(end_date)))
                         .toList();
             } else {
                 return readDefaultPageList.stream()
-                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(end_date) && readDefaultPage.getStart_date().after(start_date))
+                        .filter(readDefaultPage -> readDefaultPage.getFinish_date().before(toEndOfDay(end_date)) && readDefaultPage.getStart_date().after(toMidnight(start_date)))
                         .toList();
             }
         } catch (IllegalArgumentException e) {
@@ -546,6 +549,26 @@ public class ProjectsService {
             // 여기서는 빈 목록 반환 예시
             return new ArrayList<>();
         }
+    }
+
+    public static Date toMidnight(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    public static Date toEndOfDay(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTime();
     }
 
 }
