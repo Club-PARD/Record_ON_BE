@@ -21,6 +21,12 @@ public class SecurityConfig {
     @Value("${recordon.server.domain}")
     private String domain;
 
+    @Value("${recordon.server.domain1}")
+    private String domain1;
+
+    @Value("${recordon.server.domain2}")
+    private String domain2;
+
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
@@ -60,8 +66,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin(domain);
-        configuration.addAllowedOrigin("https://recordon.today");
-        configuration.addAllowedOrigin("https://recordon-c8464.web.app");
+        configuration.addAllowedOrigin(domain1);
+        configuration.addAllowedOrigin(domain2);
         configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("Content-Type");
         configuration.addAllowedMethod("GET");
