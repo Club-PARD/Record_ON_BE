@@ -453,8 +453,11 @@ public class ProjectsService {
             // 태그 선택으로 3차 필터링
             readDefaultPageList = findProjectsShortByCompetencyTags(projectsSearchRequest.getCompetency_tag_name(), readDefaultPageList);
 
+            List<ProjectsDTO.ReadDefaultPage> response = new ArrayList<>(readDefaultPageList);
             //
-            readDefaultPageList.sort(Comparator.comparing(ProjectsDTO.ReadDefaultPage::getFinish_date).reversed());
+            response.sort(Comparator.comparing(ProjectsDTO.ReadDefaultPage::getFinish_date).reversed());
+
+            return new ResponseDTO(true, "Successfully found " + response.size() + " projects", response);
         } catch (EntityNotFoundException e) {
             // 예외 처리: 사용자가 존재하지 않거나, 필터링에 필요한 정보가 부족할 경우
             // 예를 들어, 사용자 ID가 잘못된 경우 등
@@ -471,8 +474,6 @@ public class ProjectsService {
             // 여기서는 빈 목록 반환 예시
             return new ResponseDTO(false, "Error while filtering projects" + e.getMessage());
         }
-
-        return new ResponseDTO(true, "Successfully found " + readDefaultPageList.size() + " projects", readDefaultPageList);
     }
 
     public List<ProjectsDTO.ReadDefaultPage> findProjectsShortByIsFinished(Integer isFinished, List<ProjectsDTO.ReadDefaultPage> readDefaultPageList) {
