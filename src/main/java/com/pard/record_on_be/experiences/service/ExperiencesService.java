@@ -444,17 +444,17 @@ public class ExperiencesService {
             } else if (end_date == null) {
                 // end_date가 null이면 start_date 이후의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().after(start_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().after(toMidnight(start_date))
                 ).toList();
             } else if (start_date == null) {
                 // start_date가 null이면 end_date 이전의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(toEndOfDay(end_date))
                 ).toList();
             } else {
                 // start_date와 end_date 모두 있는 경우 해당 기간의 경험만 필터링
                 return experienceSearchResponseList.stream().filter(
-                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(end_date) && experienceSearchResponse.getExp_date().after(start_date)
+                        experienceSearchResponse -> experienceSearchResponse.getExp_date().before(toEndOfDay(end_date)) && experienceSearchResponse.getExp_date().after(toMidnight(start_date))
                 ).toList();
             }
         } catch (Exception e) {
