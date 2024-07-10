@@ -4,6 +4,7 @@ import com.pard.record_on_be.user.dto.UserDTO;
 import com.pard.record_on_be.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,9 @@ public class UserController {
 
     @GetMapping("/find/all")
     @Operation(summary = "모든 유저 리스팅",description = "DB 내 모든 유저 리스팅")
-    public List<UserDTO.Read> readAll(){
-        return userService.readAll();
+    public ResponseEntity<List<UserDTO.Read>> findAll() {
+        List<UserDTO.Read> users = userService.findAll();
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/find/{userId}")
