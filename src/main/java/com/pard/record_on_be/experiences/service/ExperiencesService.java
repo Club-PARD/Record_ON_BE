@@ -155,26 +155,59 @@ public class ExperiencesService {
 
             // 프로젝트 ID로 경험 목록을 가져옴
             experienceSearchResponseList = findExperienceShortByProjectId(experienceSearchRequest.getProject_id());
-            // 날짜로 1차 필터링
-            experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
-            // 태그로 2차 필터링
-            experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
-            // 텍스트로 3차 필터링
-            experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
-
             if (experienceSearchResponseList.isEmpty()) {
                 return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
             }
 
-            if (experienceSearchRequest.getSort_type() == 1) {
-                Collections.sort(experienceSearchResponseList, Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
-            } else if (experienceSearchRequest.getSort_type() == 2) {
+            experienceSearchResponseList = new ArrayList<>(experienceSearchResponseList);
 
-            } else {
-                return new ResponseDTO(false, "Not Supported Sort Type!");
+            // 날짜로 1차 필터링
+            experienceSearchResponseList = findExperienceShortByDate(experienceSearchRequest.getStart_date(), experienceSearchRequest.getFinish_date(), experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
             }
 
-            return new ResponseDTO(true, "Search Success!", experienceSearchResponseList);
+            // 태그로 2차 필터링
+            experienceSearchResponseList = findExperiencesShortByTag(experienceSearchRequest.getTag_name(), experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
+
+            // 텍스트로 3차 필터링
+            experienceSearchResponseList = findExperiencesShortByText(experienceSearchRequest.getSearch_text(), experienceSearchResponseList);
+            if (experienceSearchResponseList.isEmpty()) {
+                return new ResponseDTO(true, "No experience found", experienceSearchResponseList);
+            }
+
+            List<ExperiencesDTO.ExperienceSearchResponse> responses = new ArrayList<>(experienceSearchResponseList);
+
+            try {
+                if (experienceSearchRequest.getSort_type() == 1) {
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+                } else if (experienceSearchRequest.getSort_type() == 2) {
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+                } else {
+                    return new ResponseDTO(false, "Not Supported Sort Type!");
+                }
+            } catch (NullPointerException e) {
+                // Sorting 중에 NullPointerException 처리
+                System.err.println("Null value encountered while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Null value encountered while sorting: " + e.getMessage());
+            } catch (ClassCastException e) {
+                // Sorting 중에 ClassCastException 처리
+                System.err.println("Class cast error while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Class cast error while sorting: " + e.getMessage());
+            } catch (UnsupportedOperationException e) {
+                // Sorting 중에 UnsupportedOperationException 처리
+                System.err.println("Unsupported operation while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Unsupported operation while sorting: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                // Sorting 중에 IllegalArgumentException 처리
+                System.err.println("Invalid argument while sorting: " + e.getMessage());
+                return new ResponseDTO(false, "Invalid argument while sorting: " + e.getMessage());
+            }
+
+            return new ResponseDTO(true, "Search Success!", responses);
 
         } catch (IllegalArgumentException e) {
             // 유효성 검사 오류를 처리
