@@ -1,23 +1,35 @@
 package com.pard.record_on_be.util.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-@Component
-public class JwtUtil {
+@Service
+public class JWTService {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    public static final long ACCESS_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
-    public static final long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
+
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.access.token.expiration}")
+    public Long accessTokenExpiration;
+
+    @Value("${jwt.refresh.token.expiration}")
+    public Long refreshTokenExpiration;
 
     public String generateAccessToken(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
+        Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
 
         return Jwts.builder()
                 .setSubject(email)
@@ -29,7 +41,7 @@ public class JwtUtil {
 
     public String generateRefreshToken(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + REFRESH_EXPIRATION_TIME);
+        Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
                 .setSubject(email)
@@ -37,6 +49,15 @@ public class JwtUtil {
                 .setExpiration(expiryDate)
                 .signWith(key)
                 .compact();
+    }
+
+    public String refreshAccessToken(String refreshToken) throws JwtException {
+        try {
+            Claims claims = getClaimsFromToken(refreshToken);
+            return generateAccessToken(claims.getSubject());
+        } catch (JwtException e) {
+            throw new JwtException("Failed to validate refresh token: " + e.getMessage());
+        }
     }
 
     public Claims validateToken(String token) {
@@ -51,9 +72,16 @@ public class JwtUtil {
         }
     }
 
-
     public String extractUsername(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    private Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
