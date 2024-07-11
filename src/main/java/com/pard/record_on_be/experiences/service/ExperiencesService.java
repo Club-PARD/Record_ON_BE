@@ -58,15 +58,15 @@ public class ExperiencesService {
             // 태그와 질문의 존재여부 확인
             checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
-            // exp_date 확인 및 조정
-            Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
+//            // exp_date 확인 및 조정
+//            Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
 
             // 경험 생성
             Experiences experience = Experiences.builder()
                     .user_id(experienceInfo.getUser_id())
                     .projects_id(experienceInfo.getProjects_id())
                     .title(experienceInfo.getTitle())
-                    .exp_date(adjustedExpDate)
+                    .exp_date(experienceInfo.getExp_date())
                     .update_date(new Date())
                     .free_content(experienceInfo.getFree_content())
                     .common_question_answer(experienceInfo.getCommon_question_answer())
@@ -216,9 +216,9 @@ public class ExperiencesService {
 
             try {
                 if (experienceSearchRequest.getSort_type() == 1) {
-                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date));
                 } else if (experienceSearchRequest.getSort_type() == 2) {
-                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date));
                 } else {
                     return new ResponseDTO(false, "Not Supported Sort Type!");
                 }
@@ -565,7 +565,7 @@ public class ExperiencesService {
                 checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
                 // exp_date 확인 및 조정
-                Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
+//                Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
 
                 // 수정된 경험 생성
                 Experiences updatedExperience = Experiences.builder()
@@ -573,7 +573,7 @@ public class ExperiencesService {
                         .user_id(existingExperience.getUser_id())
                         .projects_id(experienceInfo.getProjects_id())
                         .title(experienceInfo.getTitle())
-                        .exp_date(adjustedExpDate)
+                        .exp_date(experienceInfo.getExp_date())
                         .update_date(new Date())
                         .free_content(experienceInfo.getFree_content())
                         .common_question_answer(experienceInfo.getCommon_question_answer())
