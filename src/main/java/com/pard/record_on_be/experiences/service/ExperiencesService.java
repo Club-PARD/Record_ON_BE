@@ -216,9 +216,9 @@ public class ExperiencesService {
 
             try {
                 if (experienceSearchRequest.getSort_type() == 1) {
-                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date));
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
                 } else if (experienceSearchRequest.getSort_type() == 2) {
-                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date));
+                    responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
                 } else {
                     return new ResponseDTO(false, "Not Supported Sort Type!");
                 }
