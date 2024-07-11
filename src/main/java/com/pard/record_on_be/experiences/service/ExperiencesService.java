@@ -58,14 +58,15 @@ public class ExperiencesService {
             // 태그와 질문의 존재여부 확인
             checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
-            logger.info("exp date : {}", new Date());
+            // exp_date 확인 및 조정
+            Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
 
             // 경험 생성
             Experiences experience = Experiences.builder()
                     .user_id(experienceInfo.getUser_id())
                     .projects_id(experienceInfo.getProjects_id())
                     .title(experienceInfo.getTitle())
-                    .exp_date(experienceInfo.getExp_date())
+                    .exp_date(adjustedExpDate)
                     .update_date(new Date())
                     .free_content(experienceInfo.getFree_content())
                     .common_question_answer(experienceInfo.getCommon_question_answer())
@@ -86,6 +87,26 @@ public class ExperiencesService {
             return new ResponseDTO(false, "An error occurred while creating the experience: " + e.getMessage());
         }
     }
+
+    public Date checkAndAdjustExpDate(Date expDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(expDate);
+
+        // 기준 시간 설정 (오전 8시 59분)
+        Calendar threshold = Calendar.getInstance();
+        threshold.set(Calendar.HOUR_OF_DAY, 8);
+        threshold.set(Calendar.MINUTE, 59);
+        threshold.set(Calendar.SECOND, 0);
+        threshold.set(Calendar.MILLISECOND, 0);
+
+        // expDate가 기준 시간 이후인지 확인
+        if (calendar.after(threshold)) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
+        return calendar.getTime();
+    }
+
 
     // 경험 상세보기
     public ResponseDTO getExperienceDetails(Integer experienceId) {
@@ -437,6 +458,8 @@ public class ExperiencesService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
+        logger.info("Start date: {}, End date: {}", start_date, end_date);
+
         try {
             // 날짜가 모두 null이면 전체 리스트 반환
             if (start_date == null && end_date == null) {
@@ -495,11 +518,12 @@ public class ExperiencesService {
             }
 
             List<ExperiencesDTO.ExperienceSearchResponse> responses = findExperienceShortByProjectId(request.getProject_id());
+            List<ExperiencesDTO.ExperienceSearchResponse> returnResponses = new ArrayList<>(responses);
 
             if(request.getSort_type() == 1){
-                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
+                returnResponses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getUpdate_date).reversed());
             } else if (request.getSort_type() == 2){
-                responses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
+                returnResponses.sort(Comparator.comparing(ExperiencesDTO.ExperienceSearchResponse::getExp_date).reversed());
             } else {
                 return new ResponseDTO(false, "Sort type not supported");
             }
@@ -511,7 +535,7 @@ public class ExperiencesService {
                     project.getFinish_date(),
                     project.getDescription(),
                     project.getPart(),
-                    responses
+                    returnResponses
             ));
         } catch (NoSuchElementException e) {
             return new ResponseDTO(false, e.getMessage());
@@ -540,13 +564,16 @@ public class ExperiencesService {
                 // 태그와 질문의 존재여부 확인
                 checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
+                // exp_date 확인 및 조정
+                Date adjustedExpDate = checkAndAdjustExpDate(experienceInfo.getExp_date());
+
                 // 수정된 경험 생성
                 Experiences updatedExperience = Experiences.builder()
                         .id(existingExperience.getId())
                         .user_id(existingExperience.getUser_id())
                         .projects_id(experienceInfo.getProjects_id())
                         .title(experienceInfo.getTitle())
-                        .exp_date(experienceInfo.getExp_date())
+                        .exp_date(adjustedExpDate)
                         .update_date(new Date())
                         .free_content(experienceInfo.getFree_content())
                         .common_question_answer(experienceInfo.getCommon_question_answer())
