@@ -30,10 +30,6 @@ public class UserService {
         return userRepo.save(user);
     }
 
-//    public Boolean isNewUser(String email) {
-//
-//    }
-
     public Map<String, Object> registerById(UserDTO.RegisterInfo registerInfo) {
         User user = userRepo.findById(registerInfo.getId()).orElseThrow();
         user.update(registerInfo.getName(), user.getPicture()); // 이름 업데이트
@@ -53,7 +49,7 @@ public class UserService {
         return new UserDTO.Read(user);
     }
 
-    public List<UserDTO.Read> readAll(){
+    public List<UserDTO.Read> findAll(){
         // 유저들을 리스트로 가져옴
         // stream 으로 하나씩 나눔
         return userRepo.findAll()

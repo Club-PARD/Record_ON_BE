@@ -1,5 +1,6 @@
 package com.pard.record_on_be.auth.service;
 
+import com.pard.record_on_be.auth.dto.UserLoginRequestDTO;
 import com.pard.record_on_be.user.entity.User;
 import com.pard.record_on_be.user.service.UserService;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,12 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public Map<String, Object> saveOrUpdateUser(String email, String name, String picture) {
-        User user = userService.createOrUpdateUser(email, name, picture);
+    public Map<String, Object> saveOrUpdateUser(UserLoginRequestDTO userLoginRequestDTO) {
+        User user = userService.createOrUpdateUser(
+                userLoginRequestDTO.getEmail(),
+                userLoginRequestDTO.getName(),
+                userLoginRequestDTO.getImageUrl()
+        );
         boolean isNewUser = user.getCreatedDate().equals(user.getModifiedDate()); // CreatedDate와 ModifiedDate가 동일하면 신규 유저
 
         Map<String, Object> result = new HashMap<>();

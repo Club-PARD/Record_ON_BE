@@ -1,6 +1,6 @@
 package com.pard.record_on_be.config;
 
-import com.pard.record_on_be.util.jwt.JwtUtil;
+import com.pard.record_on_be.auth.service.JWTService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -11,8 +11,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,13 +23,10 @@ import java.util.Optional;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+    private final JWTService jwtService;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
-
-    private final JwtUtil jwtUtil;
-
-    public JwtFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public JwtFilter(JWTService jwtService) {
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -38,47 +36,41 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                logger.info("Token found in cookies: {}", token);
-                Claims claims = jwtUtil.validateToken(token);
+                Claims claims = jwtService.validateToken(token);
                 if (claims != null) {
-                    logger.info("Token is valid for user: {}", claims.getSubject());
+                    // SecurityContextHolder 에 인증 정보 설정
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            claims.getSubject(), null, null);
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     // 유효한 토큰일 경우, 요청을 계속 처리
                     filterChain.doFilter(request, response);
                     return;
                 }
             } catch (ExpiredJwtException e) {
-                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Expired token");
                 return;
             } catch (UnsupportedJwtException e) {
-                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unsupported token");
                 return;
             } catch (MalformedJwtException e) {
-                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Malformed token");
                 return;
             } catch (JwtException e) {
-                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;
             }
+        } else if (!isPublicEndpoint(request)) {
+            // 토큰이 없고, public endpoint 가 아닌 경우
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Access token not found");
+            return;
         }
-
-        // 아래 인용만 지우기
-
-//        else if (!isPublicEndpoint(request)) {
-//            // 토큰이 없고, public endpoint가 아닌 경우
-//            logger.warn("Access token not found in request to {}", request.getRequestURI());
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            response.getWriter().write("Access token not found");
-//            return;
-//        }
 
         // public endpoint 일 경우
         filterChain.doFilter(request, response);
@@ -104,6 +96,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean isPublicEndpoint(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/auth/login") || path.startsWith("/health");
+        return path.startsWith("/api/auth/login") ||
+                path.startsWith("/health") ||
+                path.startsWith("/api/auth/refresh");
     }
 }

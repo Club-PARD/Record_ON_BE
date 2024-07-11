@@ -1,9 +1,9 @@
-package com.pard.record_on_be.util.jwt;
+package com.pard.record_on_be.auth.dto;
 
 import lombok.Getter;
 
 @Getter
-public class UserLoginRequest {
+public class UserLoginRequestDTO {
     private String email;
     private String name;
     private String imageUrl;
