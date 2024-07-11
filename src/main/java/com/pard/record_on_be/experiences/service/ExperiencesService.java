@@ -58,6 +58,8 @@ public class ExperiencesService {
             // 태그와 질문의 존재여부 확인
             checkQuestionsAndTags(experienceInfo.getQuestion_ids(), experienceInfo.getTag_ids());
 
+            logger.info("exp date : {}", new Date());
+
             // 경험 생성
             Experiences experience = Experiences.builder()
                     .user_id(experienceInfo.getUser_id())
@@ -434,8 +436,6 @@ public class ExperiencesService {
         if (start_date != null && end_date != null && start_date.after(end_date)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
-
-        logger.info("Start date: {}, End date: {}, exp date : {}", start_date, end_date, experienceSearchResponseList.get(0).getExp_date());
 
         try {
             // 날짜가 모두 null이면 전체 리스트 반환
