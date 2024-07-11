@@ -11,8 +11,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -25,9 +23,6 @@ import java.util.Optional;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
-
     private final JWTService jwtService;
 
     public JwtFilter(JWTService jwtService) {
@@ -41,11 +36,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                logger.info("Token found in cookies: {}", token);
                 Claims claims = jwtService.validateToken(token);
                 if (claims != null) {
-                    logger.info("Token is valid for user: {}", claims.getSubject());
-
                     // SecurityContextHolder 에 인증 정보 설정
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             claims.getSubject(), null, null);
@@ -57,29 +49,24 @@ public class JwtFilter extends OncePerRequestFilter {
                     return;
                 }
             } catch (ExpiredJwtException e) {
-                logger.error("Expired token: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Expired token");
                 return;
             } catch (UnsupportedJwtException e) {
-                logger.error("Unsupported token: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unsupported token");
                 return;
             } catch (MalformedJwtException e) {
-                logger.error("Malformed token: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Malformed token");
                 return;
             } catch (JwtException e) {
-                logger.error("Invalid or expired token: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;
             }
         } else if (!isPublicEndpoint(request)) {
             // 토큰이 없고, public endpoint 가 아닌 경우
-            logger.warn("Access token not found in request to {}", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Access token not found");
             return;

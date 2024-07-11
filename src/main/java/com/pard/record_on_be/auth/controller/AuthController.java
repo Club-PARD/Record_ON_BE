@@ -10,8 +10,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -27,21 +25,17 @@ import java.util.Optional;
 public class AuthController {
     private final JWTService jwtService;
     private final AuthService authService;
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "구글 로그인으로 받은 정보 넘겨주세요~")
     public Map<String, Object> googleLogin(@RequestBody UserLoginRequestDTO userLoginRequestDTO, HttpServletResponse response) {
         Map<String, Object> userInfo = authService.saveOrUpdateUser(userLoginRequestDTO);
 
-        // 액세스 토큰 및 리프레시 토큰 발급
         String accessToken = jwtService.generateAccessToken(userLoginRequestDTO.getEmail());
         String refreshToken = jwtService.generateRefreshToken(userLoginRequestDTO.getEmail());
 
-        // 액세스 토큰을 쿠키로 설정
         addCookie(response, "access_token", accessToken, (int) (jwtService.getAccessTokenExpiration() / 1000));
 
-        // 리프레시 토큰을 쿠키로 설정
         addCookie(response, "refresh_token", refreshToken, (int) (jwtService.getRefreshTokenExpiration() / 1000));
 
         return userInfo;
@@ -73,26 +67,18 @@ public class AuthController {
                 .filter(cookie -> "refresh_token".equals(cookie.getName()))
                 .findFirst();
 
-        logger.info("Refresh endpoint accessed");
-
         if (refreshTokenCookie.isPresent()) {
             try {
                 Claims claims = jwtService.validateToken(refreshTokenCookie.get().getValue());
                 String newAccessToken = jwtService.generateAccessToken(claims.getSubject());
 
-                // 새로운 액세스 토큰을 쿠키로 설정
                 addCookie(response, "access_token", newAccessToken, (int) (jwtService.getAccessTokenExpiration() / 1000));
-
-                // 로그 출력
-                logger.info("New access token generated for user: {}", claims.getSubject());
 
                 return ResponseEntity.ok("Access token refreshed successfully");
             } catch (JwtException e) {
-                logger.error("Failed to validate refresh token", e);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
             }
         } else {
-            logger.warn("Refresh token not found in request");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");
         }
     }
@@ -102,7 +88,7 @@ public class AuthController {
                 .path("/")
                 .sameSite("None")
                 .httpOnly(true)
-                .secure(true) // 실제 환경에서는 true로 설정해야 합니다.
+                .secure(true)
                 .maxAge(maxAge)
                 .build();
 
