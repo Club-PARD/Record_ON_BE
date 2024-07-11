@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,22 +39,10 @@ public class AuthController {
         String refreshToken = jwtService.generateRefreshToken(userLoginRequestDTO.getEmail());
 
         // 액세스 토큰을 쿠키로 설정
-        Cookie accessCookie = new Cookie("access_token", accessToken);
-        accessCookie.setHttpOnly(true); // 클라이언트 측에서 자바스크립트로 접근 불가
-//        accessCookie.setSecure(true); // HTTPS 에서만 쿠키 전송
-        accessCookie.setPath("/"); // 쿠키가 모든 경로에서 유효
-        accessCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000)); // 쿠키 만료 시간 설정
+        addCookie(response, "access_token", accessToken, (int) (jwtService.getAccessTokenExpiration() / 1000));
 
         // 리프레시 토큰을 쿠키로 설정
-        Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-        refreshCookie.setHttpOnly(true); // 클라이언트 측에서 자바스크립트로 접근 불가
-//        refreshCookie.setSecure(true); // HTTPS 에서만 쿠키 전송
-        refreshCookie.setPath("/"); // 쿠키가 모든 경로에서 유효
-        refreshCookie.setMaxAge((int) (jwtService.getRefreshTokenExpiration() / 1000)); // 쿠키 만료 시간 설정
-
-        // 쿠키 추가
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
+        addCookie(response, "refresh_token", refreshToken, (int) (jwtService.getRefreshTokenExpiration() / 1000));
 
         return userInfo;
     }
@@ -92,13 +81,7 @@ public class AuthController {
                 String newAccessToken = jwtService.generateAccessToken(claims.getSubject());
 
                 // 새로운 액세스 토큰을 쿠키로 설정
-                Cookie newAccessCookie = new Cookie("access_token", newAccessToken);
-                newAccessCookie.setHttpOnly(true);
-                newAccessCookie.setSecure(true);
-                newAccessCookie.setPath("/");
-                newAccessCookie.setMaxAge((int) (jwtService.getAccessTokenExpiration() / 1000));
-
-                response.addCookie(newAccessCookie);
+                addCookie(response, "access_token", newAccessToken, (int) (jwtService.getAccessTokenExpiration() / 1000));
 
                 // 로그 출력
                 logger.info("New access token generated for user: {}", claims.getSubject());
@@ -112,5 +95,17 @@ public class AuthController {
             logger.warn("Refresh token not found in request");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");
         }
+    }
+
+    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true) // 실제 환경에서는 true로 설정해야 합니다.
+                .maxAge(maxAge)
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
