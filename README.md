@@ -277,7 +277,7 @@
 
 ## ERD
 
-<img src="https://github.com/user-attachments/assets/22d9334c-d7f3-4c86-a405-f9025f5255fa">
+<img src="https://github.com/user-attachments/assets/7cb351ec-ee2a-43ad-92bb-e7ed07d996c1">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -323,9 +323,9 @@
 ## Stack
 ### 🌟 Frontend(Web)
 
->Language : JavaScript
->Library & Framework : React, Styled-Components, Axios, Recoil, React-Quill, React-Rnd, React-To-Pdf
->Deploy: Netlify
+>Language : JavaScript    
+>Library & Framework : React, Styled-Components, Axios, Recoil    
+>Deploy: Firebase
 
 
 ### 💻 Backend
