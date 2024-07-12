@@ -128,15 +128,15 @@ public class ExperiencesDTO {
     @Data
     @AllArgsConstructor
     public static class ExperienceDetailsResponse {
-        private String experience_name;
+        private String title;
         private Date exp_date;
-        private List<Integer> tag_id;
-        private List<String> tag_name;
+        private List<Integer> tag_ids;
+        private List<String> tag_names;
         private String free_content;
-        private List<String> reference_link;
-        private String common_question_answer;
-        private List<Integer> question_id;
-        private List<String> question_text;
-        private List<String> question_answer;
+        private List<String> reference_links;
+        private String common_question_answers;
+        private List<Integer> question_ids;
+        private List<String> question_texts;
+        private List<String> question_answers;
     }
 }
