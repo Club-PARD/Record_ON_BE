@@ -35,7 +35,7 @@
 
 <br>
 
-<img src="asset/images/typo_logo.png" width="45%">
+<img src="https://github.com/user-attachments/assets/7f704e6b-e63e-4525-875d-39877b6748b7" width="45%">
 
 </div>
 
@@ -171,7 +171,7 @@
 
 ## ERD
 
-<img src="asset/images/Record_on_ERD(1).png">
+<img src="https://github.com/user-attachments/assets/22d9334c-d7f3-4c86-a405-f9025f5255fa">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -210,7 +210,7 @@
 
 ## Branch Criteria
 
-<img src="./asset/images/Branch_Citeria.png">
+<img src="https://github.com/user-attachments/assets/399474e3-1c20-4bc2-85d9-7b4ea040bcf4">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -250,10 +250,10 @@
 |                                                🐣 조예은                                                 |                          🐭 박예람                           |                          🦉 김기영                           |                          🐱 전소명                           |
 |:-----------------------------------------------------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
 |                                                  PM                                                   |                            기획                             |                            백엔드                            |                            백엔드                            |
-|  <img src="asset/images/profile/yeeun.jpeg" style="width: 150px; height: 150px; object-fit: cover;">  |  <img src="asset/images/profile/yeram.jpeg" style="width: 150px; height: 150px; object-fit: cover;">   | <img src="asset/images/profile/giyoung.png" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/somyung.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> |
+|  <img src="https://github.com/user-attachments/assets/b7e06b6e-94b1-4d1a-aab4-4f2378626b09" style="width: 150px; height: 150px; object-fit: cover;">  |  <img src="https://github.com/user-attachments/assets/a724d87f-9526-480d-89b5-bb0c91187574" style="width: 150px; height: 150px; object-fit: cover;">   | <img src="https://github.com/user-attachments/assets/d0b3d498-5623-461b-b4b4-46863dd450c8" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/67305492-f1cd-4635-b89a-1c7bfcc3769e" style="width: 150px; height: 150px; object-fit: cover;"> |
 |                                                🐰 이윤서                                                 |                          🐹 김예은                           |                          🐨 박주영                           |                          🐶 이민규                           |
 |                                                  디자인                                                  |                           프론트엔드                           |                           프론트엔드                           |                           프론트엔드                           |
-| <img src="asset/images/profile/yunseo1.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/yepal.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/juyoung.png" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="asset/images/profile/mingyu.jpeg" style="width: 150px; height: 150px; object-fit: cover;"> |
+| <img src="https://github.com/user-attachments/assets/3b813d08-7315-4801-b2a3-86bc25162654" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/16fa6fd2-385e-4753-a426-1d95718ee386" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/f5d95226-417b-461d-a733-569fa16ebf7b" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/1a217ed7-7955-482d-b120-354ca4ba2dfb" style="width: 150px; height: 150px; object-fit: cover;"> |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
