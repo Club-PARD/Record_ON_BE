@@ -26,10 +26,12 @@ public class ReferenceDTO {
     public static class UrlMetadata {
         private String title;
         private String imageUrl;
+        private String url;
 
-        public UrlMetadata(String title, String imageUrl) {
+        public UrlMetadata(String title, String imageUrl, String url) {
             this.title = title;
             this.imageUrl = imageUrl;
+            this.url = url;
         }
     }
 
