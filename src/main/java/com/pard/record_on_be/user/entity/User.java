@@ -47,9 +47,12 @@ public class User extends BaseTimeEntity {
     @JsonIgnore // 순환 참조 방지
     private List<Projects> projects;
 
-
-    public void update(String name, String picture) {
+    public void updateNameAndPicture(String name, String picture) {
         this.name = name;
+        this.picture = picture;
+    }
+
+    public void updatePicture(String picture) {
         this.picture = picture;
     }
 
