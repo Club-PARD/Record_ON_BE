@@ -163,7 +163,7 @@
 ## Deployment Link
 
 >- Frontend Link
-   >  -  https://recordon.today
+  >    -  https://recordon.today
 
 >- Backend Link
    >    -  https://api-recordon.shop
