@@ -76,6 +76,7 @@
       </ul>
     </li>
     <li><a href="#deployment-link">Deployment Link</a></li>
+    <li><a href="#user-guide">User Guide</a></li>
     <li><a href="#erd">ERD</a></li>
     <li><a href="#commit-message-convention">Commit Message Convention</a></li>
     <li><a href="#branch-criteria">Branch Criteria</a></li>
@@ -162,12 +163,24 @@
 ## Deployment Link
 
 >- Frontend Link
-   >  -  https://example.com
+   >  -  https://recordon.today
 
 >- Backend Link
-   >    -  https://example.com
+   >    -  https://api-recordon.shop
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+## User Guide
+
+### 1. 랜딩 페이지
+ - 가장 기본 페이지로, 서비스에 대한 설명과  
+
+<img src="">
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 ## ERD
 
