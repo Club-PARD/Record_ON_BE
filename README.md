@@ -174,12 +174,105 @@
 ## User Guide
 
 ### 1. 랜딩 페이지
- - 가장 기본 페이지로, 서비스에 대한 설명과  
+ - 가장 기본 페이지로, 서비스에 대한 설명이 적혀 있습니다.
+ - 경험 기록 시작 버튼을 클릭 시 구글 로그인 후에
+   - 처음 서비스를 사용할 경우 회원가입 페이지로 넘어갑니다.
+   - 전에 서비스를 사용해 본 경험이 있는 경우 사용자의 프로젝트 카드 모음 페이지로 넘어갑니다.
 
-<img src="">
+<p align="center">
+<img src="https://github.com/user-attachments/assets/6f844287-1b59-4852-9fa9-f8a72fd9dd34" width="79%">
+</p>
 
+### 1-2. 회원가입 페이지
+- 처음 서비스를 사용할 경우 로그인 후 넘어가는 페이지로, 사용자의 이름과 희망 직군을 선택할 수 있으며, 사용자 약관 정보가 담겨 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/5f79c22b-a7cc-4e51-9acf-ddf1fce1deab" width="79%">
+</p>
+
+### 2. 프로젝트 카드 모음 페이지
+- 사용자가 로그인 후에 처음으로 보게 되는 페이지로, 이전에 진행하던 프로젝트를 볼 수도 있고,
+새로운 프로젝트를 만들 수도 있습니다.
+- 역량 태그를 선택하여 완료된 프로젝트 중에 해당 태그가 걸려 있는 프로젝트들을 검색할 수 있습니다.
+- 기간 설정으로 해당 기간동안 진행된 프로젝트를 검색하여 볼 수 있습니다.
+- 진행 현황을 선택하여 진행중이거나 진행 완료된 프로젝트만 검색하여 볼 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/18e22bca-f95f-4956-af40-6a35cbe9de70" width="79%">
+</p>
+<p align="center">
+<img src="https://github.com/user-attachments/assets/db4f3846-4eb7-4aac-b023-99e5627a65fc" width="79%">
+</p>
+
+### 2-2. 프로젝트 생성 페이지
+- 프로젝트 가드 모음 페이지에서 ``프로젝트 추가`` 버튼을 누를 시 볼 수 있는 페이지로 다양한 정보를 기입하고 새로운 프로젝트를 생성할 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/0d12044e-32e8-473f-9fce-80df62e9fc6d" width="79%">
+</p>
+
+### 3. 경험기록 카드 모음 페이지
+- 프로젝트 가드 모음 페이지에서 프로젝트를 선택 시 볼 수 있는 페이지입니다.
+- 기능)
+  - 사용자가 작성했던 경험 기록들을 열람할 수 있습니다.
+  - ``관련 자료 링크`` 버튼을 클릭 시 사용자가 기록했던 링크들을 모아볼 수 있습니다.
+  - ``경험 기록 추가`` 버튼을 눌러 새로운 경험을 기록할 수 있습니다.
+  - ``프로젝트 완료하기`` 버튼을 눌러 해당 프로젝트를 완료시킬 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/9c3bf177-70a1-4f70-8ef1-daac6369cde1" width="79%">
+</p>
+
+- 경험 태그를 선택하여 작성한 경험 중에 해당 태그가 걸려 있는 경험들을 검색할 수 있습니다.
+- 기간 설정으로 해당 기간동안 진행된 경험들을 검색하여 볼 수 있습니다.
+- 단어를 기입하여 해당 단어가 들어간 경험들을 모아 검색할 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/68160ebe-df14-4224-96c4-059c13eb3056" width="79%">
+</p>
+
+### 3-2. 관련 자료 링크 페이지
+- 경험기록 카드 모음 페이지에서 ``관련 자료 링크`` 버튼을 클릭 시 볼 수 있는 페이지입니다.
+- 경험을 기록하면서 첨부했던 링크들을 전부 모아 볼 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/48e140e3-a531-404f-861f-eda487b23bae" width="79%">
+</p>
+
+### 3-3. 프로젝트 완료하기 페이지
+- 경험기록 카드 모음 페이지에서 ``프로젝트 완료하기`` 버튼을 클릭 시 볼 수 있는 페이지입니다.
+- 사용자가 프로젝트에 걸 태그를 최대 세 개 선택할 수 있으며 선택한 태그는 프로젝트 카드 모음 페이지에서 확인할 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/66b3c409-db0a-45f7-89a0-3a75bb8e9234" width="79%">
+</p>
+
+### 4. 경험기록 카드 생성
+- 경험기록 카드 모음 페이지에서 ``경험 기록 추가`` 버튼을 클릭 시 볼 수 있는 페이지입니다.
+- 여러 정보를 기입할 수 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/0daa784c-6f4a-46d2-9a02-0e481d97fee2" width="79%">
+</p>
+
+- 경험 태그를 클릭하여 질문을 선택하고 해당 질문에 대한 답변을 기입할 수 있습니다. 
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/2390668d-d6d0-4b3b-9d81-31b25573e7f0" width="79%">
+</p>
+<p align="center">
+<img src="https://github.com/user-attachments/assets/6a3edc80-08ae-40a6-8660-f1999ea75275" width="79%">
+</p>
+
+- 자유롭게 못 다한 이야기를 작성하거나, 해당 경험을 겪은 날에 사용한 다른 툴들의 링크를 첨부할 수도 있습니다.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/667c0cbc-c70b-4be2-b451-7c5af7b8bec9" width="79%">
+</p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 
 
 ## ERD
