@@ -548,6 +548,29 @@ public class ExperiencesService {
     @Transactional
     public ResponseDTO updateExperience(Integer experienceId, ExperiencesDTO.ExperienceInfo experienceInfo) {
         try {
+            // 필수 항목 검사
+            if (experienceInfo.getUser_id() == null) {
+                throw new IllegalArgumentException("User ID is required");
+            }
+            if (experienceInfo.getProjects_id() == null) {
+                throw new IllegalArgumentException("Project ID is required");
+            }
+            if (experienceInfo.getTitle() == null || experienceInfo.getTitle().isEmpty()) {
+                throw new IllegalArgumentException("Title is required");
+            }
+            if (experienceInfo.getExp_date() == null) {
+                throw new IllegalArgumentException("Experience date is required");
+            }
+            if (experienceInfo.getQuestion_ids() == null || experienceInfo.getQuestion_ids().isEmpty()) {
+                throw new IllegalArgumentException("Question IDs are required");
+            }
+            if (experienceInfo.getTag_ids() == null || experienceInfo.getTag_ids().isEmpty()) {
+                throw new IllegalArgumentException("Tag IDs are required");
+            }
+            if (experienceInfo.getQuestion_answers() == null || experienceInfo.getQuestion_answers().isEmpty()) {
+                throw new IllegalArgumentException("Question answers are required");
+            }
+
             Optional<Experiences> optionalExperience = experiencesRepo.findById(experienceId);
             // 대상 경험의 존재여부 확인
             if (optionalExperience.isPresent()) {
