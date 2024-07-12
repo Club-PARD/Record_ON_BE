@@ -13,16 +13,16 @@ import java.util.*;
 public class UserService {
     private final UserRepo userRepo;
 
-    public User createOrUpdateUser(String email, String name, String picture) {
+    public User createOrUpdateUser(String email, String picture) {
         Optional<User> optionalUser = userRepo.findByEmail(email);
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
-            user.update(name, picture);
+            user.updatePicture(picture);
         } else {
             user = User.builder()
                     .email(email)
-                    .name(name)
+                    .name("Unspecified")
                     .picture(picture)
                     .job("Unspecified")
                     .build();
@@ -32,8 +32,8 @@ public class UserService {
 
     public Map<String, Object> registerById(UserDTO.RegisterInfo registerInfo) {
         User user = userRepo.findById(registerInfo.getId()).orElseThrow();
-        user.update(registerInfo.getName(), user.getPicture()); // 이름 업데이트
-        user.updateJob(registerInfo.getJob()); // 직업 업데이트
+        user.updateNameAndPicture(registerInfo.getName(), user.getPicture());
+        user.updateJob(registerInfo.getJob());
         userRepo.save(user);
 
         Map<String, Object> result = new HashMap<>();

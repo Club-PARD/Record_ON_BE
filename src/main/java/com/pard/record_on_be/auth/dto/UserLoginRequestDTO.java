@@ -5,6 +5,5 @@ import lombok.Getter;
 @Getter
 public class UserLoginRequestDTO {
     private String email;
-    private String name;
     private String imageUrl;
 }

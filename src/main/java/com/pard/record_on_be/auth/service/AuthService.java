@@ -20,7 +20,6 @@ public class AuthService {
     public Map<String, Object> saveOrUpdateUser(UserLoginRequestDTO userLoginRequestDTO) {
         User user = userService.createOrUpdateUser(
                 userLoginRequestDTO.getEmail(),
-                userLoginRequestDTO.getName(),
                 userLoginRequestDTO.getImageUrl()
         );
         boolean isNewUser = user.getCreatedDate().equals(user.getModifiedDate()); // CreatedDate와 ModifiedDate가 동일하면 신규 유저
