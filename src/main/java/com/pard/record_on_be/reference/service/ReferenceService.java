@@ -43,7 +43,7 @@ public class ReferenceService {
         } catch (Exception e) {
             e.printStackTrace();
             // 예외가 발생한 경우 적절한 메시지와 함께 빈 값을 반환
-            return new ReferenceDTO.UrlMetadata("유효하지 않은 링크입니다.", "");
+            return new ReferenceDTO.UrlMetadata(url, "");
         }
 
         // 메타데이터를 담은 객체 반환
