@@ -134,7 +134,7 @@ public class ExperiencesDTO {
         private List<String> tag_names;
         private String free_content;
         private List<String> reference_links;
-        private String common_question_answers;
+        private String common_question_answer;
         private List<Integer> question_ids;
         private List<String> question_texts;
         private List<String> question_answers;
