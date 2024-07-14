@@ -321,7 +321,7 @@
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Stack
-### 🌟 Frontend(Web)
+### 🌟 Frontend (Web)
 
 >Language : JavaScript    
 >Library & Framework : React, Styled-Components, Axios, Recoil    
@@ -353,12 +353,12 @@
 <!-- CONTACT -->
 ## Team Member
 
-|                                                🐣 조예은                                                 |                          🐭 박예람                           |                          🦉 김기영                           |                          🐱 전소명                           |
-|:-----------------------------------------------------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
-|                                                  PM                                                   |                            기획                             |                            백엔드                            |                            백엔드                            |
+|                                                🐣 조예은                                                 |                          🐭 박예람                           |                          🦉 김기영                           |                                                                       🦊 전소명                                                                        |
+|:-----------------------------------------------------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                                  PM                                                   |                            기획                             |                            백엔드                            |                                                                         백엔드                                                                         |
 |  <img src="https://github.com/user-attachments/assets/b7e06b6e-94b1-4d1a-aab4-4f2378626b09" style="width: 150px; height: 150px; object-fit: cover;">  |  <img src="https://github.com/user-attachments/assets/a724d87f-9526-480d-89b5-bb0c91187574" style="width: 150px; height: 150px; object-fit: cover;">   | <img src="https://github.com/user-attachments/assets/d0b3d498-5623-461b-b4b4-46863dd450c8" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/67305492-f1cd-4635-b89a-1c7bfcc3769e" style="width: 150px; height: 150px; object-fit: cover;"> |
-|                                                🐰 이윤서                                                 |                          🐹 김예은                           |                          🐨 박주영                           |                          🐶 이민규                           |
-|                                                  디자인                                                  |                           프론트엔드                           |                           프론트엔드                           |                           프론트엔드                           |
+|                                                🐰 이윤서                                                 |                          🐹 김예은                           |                          🐨 박주영                           |                                                                       🐶 이민규                                                                        |
+|                                                  디자인                                                  |                           프론트엔드                           |                           프론트엔드                           |                                                                        프론트엔드                                                                        |
 | <img src="https://github.com/user-attachments/assets/3b813d08-7315-4801-b2a3-86bc25162654" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/16fa6fd2-385e-4753-a426-1d95718ee386" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/f5d95226-417b-461d-a733-569fa16ebf7b" style="width: 150px; height: 150px; object-fit: cover;"> | <img src="https://github.com/user-attachments/assets/1a217ed7-7955-482d-b120-354ca4ba2dfb" style="width: 150px; height: 150px; object-fit: cover;"> |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
